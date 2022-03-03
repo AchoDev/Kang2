@@ -17,9 +17,10 @@ module.exports = class Lexer {
 
     text = ''
     index = 0
-
+    input
     constructor(inputText) {
         this.text = inputText.split('')
+        this.input = inputText
         this.advance()
     }
 
@@ -40,13 +41,14 @@ module.exports = class Lexer {
             } else if(this.currentChar == '+') {
                 this.advance()
                 tokens.push(new fToken.Token(fToken.TokenType.types.PLUS))
-            } 
-            else if(this.currentChar == '-' && this.text[this.index + 1] == "s") {
-                settings.changeSetting(inputText)
-            } 
-            else if(this.currentChar == '-') {
+            } else if(this.currentChar == '-') {
                 this.advance()
-                tokens.push(new fToken.Token(fToken.TokenType.types.MINUS))
+                if(this.currentChar != 's') {
+                    tokens.push(new fToken.Token(fToken.TokenType.types.MINUS))
+                } else {
+                    settings.changeSetting(this.input)
+                    return null
+                }
             } else if(this.currentChar == '*') {
                 this.advance()
                 tokens.push(new fToken.Token(fToken.TokenType.types.MULTIPLY))

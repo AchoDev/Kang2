@@ -17,18 +17,17 @@ while(true) {
 
     const lexer = new cLexer(input)
     const tokens = lexer.createTokens()
-    const parser = new Parser(tokens)
-    tree = parser.parse()
-    
-    const interpreter = new Interpreter()
-    sum = interpreter.interpret(tree)
-    
-    let rString = ''
-    tokens.forEach(element => {
-        rString += element.repr()
-        rString += '\n'
-    })
-
-    console.log(sum)
+    if(tokens != null) {
+        const parser = new Parser(tokens)
+        const interpreter = new Interpreter()
+        tree = parser.parse()
+        sum = interpreter.interpret(tree)
+        console.log(sum)
+    }
+    // let rString = ''
+    // tokens.forEach(element => {
+    //     rString += element.repr()
+    //     rString += '\n'
+    // })
 }
 

@@ -2,6 +2,7 @@
 const TokenType = require("./token.js").TokenType
 const nodes = require("./nodes.js")
 const { Token } = require("./token.js")
+const settings = require("./settings/settings.js")
 
 class Parser {
 
@@ -34,7 +35,9 @@ class Parser {
         if(this.tokens[this.index] != null) {
             this.raiseError()
         }
-        console.log(result)
+        if(settings.showNode()) {
+            console.log(result)
+        }
         return result
     }
 
