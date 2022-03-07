@@ -34,6 +34,7 @@ class Parser {
 
         if(this.tokens[this.index] != null) {
             this.raiseError()
+            console.log("Internal Token error")
         }
         if(settings.showNode()) {
             console.log(result)
@@ -81,13 +82,16 @@ class Parser {
     term() {
         let result = this.factor()
 
-        while(this.currentToken != null && (this.currentToken.type == TokenType.types.MULTIPLY || this.currentToken.type == TokenType.types.DIVIDE)) {
+        while(this.currentToken != null && (this.currentToken.type == TokenType.types.MULTIPLY || this.currentToken.type == TokenType.types.DIVIDE || this.currentToken.type == TokenType.types.VARKEY)) {
             if(this.currentToken.type == TokenType.types.MULTIPLY) {
                 this.advance()
                 result = new nodes.MultiplyNode(result, this.term())
             } else if(this.currentToken.type == TokenType.types.DIVIDE) {
                 this.advance()
                 result = new nodes.DivideNode(result, this.term())
+            } else if(this.currentToken.type == TokenType.types.VARKEY) {
+                result = this.createVar()
+                this.advance()
             }
         }
 
@@ -111,8 +115,33 @@ class Parser {
             result = new nodes.MinusNode(-this.currentToken.value)
             this.advance()
             return result
+        } else if (this.currentToken != null && this.currentToken.type == TokenType.types.REF) {
+            // console.log("hehehhaw " + JSON.stringify(this.currentToken, null, 4))
+            result = new nodes.ReferenceNode(this.currentToken.value)
+            this.advance()
+            return result
+        } else if (this.currentToken != null && (this.currentToken.type == TokenType.types.EQ)) {
+            this.advance()
         }
-        this.raiseError()
+    }
+
+    createVar() {
+        this.advance()
+        const ident = this.currentToken.value
+        this.advance()
+
+        if(this.currentToken.type != TokenType.types.EQ) {
+            console.log('\x1b[31m', `TypeError: '=' expected but ${this.currentToken.value} found instead`)
+            return null
+        } 
+        
+        this.advance()
+        const result = new nodes.VarAssignNode(ident, this.expr())
+
+        // console.log(this.currentToken + " fjskfjsklföjdkaslöfj")
+        this.advance()
+
+        return result
     }
 
 }

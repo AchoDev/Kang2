@@ -7,7 +7,12 @@ class TokenType {
         MULTIPLY : 3,
         DIVIDE : 4,
         LPAREN : 5,
-        RPAREN : 6
+        RPAREN : 6,
+        ARROW : 7,
+        EQ : 8,
+        IDENT: 9,
+        VARKEY: 10,
+        REF: 11
     })
 }
 
@@ -27,4 +32,17 @@ class Token {
     
 }
 
-module.exports = {TokenType, Token}
+class Identifier {
+ 
+    value
+
+    constructor (iValue){
+        this.value = iValue
+    }
+
+    repr = () => {
+        return `[TYP]`
+    }
+}
+
+module.exports = {TokenType, Token, Identifier}

@@ -22,7 +22,7 @@ while(true) {
         const interpreter = new Interpreter()
         tree = parser.parse()
         sum = interpreter.interpret(tree)
-        console.log(sum)
+        if(sum != null) console.log(sum)
     }
     // let rString = ''
     // tokens.forEach(element => {

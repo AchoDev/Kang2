@@ -5,10 +5,7 @@ A simple interpreted language made as a successor to the failed language Kangoo
 ## Installing
 
 First install Node.js at <br>
-https://nodejs.org/en/download/ <br><br>
-
-Then open your command prompt and enter in:<br>
-`npm install readline-sync` <br>
+https://nodejs.org/en/download/ <br>
 
 Then open your terminal and type:
 

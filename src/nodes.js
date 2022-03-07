@@ -79,4 +79,42 @@ class DivideNode {
     }
 }
 
-module.exports = {PlusNode, MinusNode, AddNode, SubtractNode, MultiplyNode, DivideNode}
+class VarAssignNode {
+    nodeA
+    nodeB
+    
+    constructor(crA, crB) {
+        this.nodeA = crA
+        this.nodeB = crB
+    }
+
+    repr = () => {
+        return `var ${nodeA} = ${nodeB}`
+    }
+}
+
+class IdentifierNode {
+    identity
+
+    constructor(val) {
+        this.identity = val
+    }
+
+    repr = () => {
+        return `${identity}`
+    }
+}
+
+class ReferenceNode {
+    varName
+
+    constructor(ref) {
+        this.varName = ref
+    }
+
+    repr = () => {
+        return `Ref: ${varName}`
+    }
+}
+
+module.exports = {PlusNode, MinusNode, AddNode, SubtractNode, MultiplyNode, DivideNode, VarAssignNode, IdentifierNode, ReferenceNode}
