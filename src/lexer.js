@@ -1,8 +1,9 @@
 
 const WHITESPACE = ' '
 const DIGITS = '0123456789'
-const LETTERS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
-const LETTERS_DIGITS = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+const LETTERS = `öabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"'`
+const LETTERS_DIGITS = `abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789`
+const QUOTES = `"'`
 
 const fToken = require('./token.js')
 const settings = require('./settings/settings.js')
@@ -83,7 +84,7 @@ module.exports = class Lexer {
             }
             
         }
-
+        if(settings.showToken()) console.log(tokens)
         return tokens
     }
 
@@ -108,27 +109,43 @@ module.exports = class Lexer {
     handleString() {
         let string = ""
         let result
+        let valStr = false
 
         let i = 0
 
         while(this.currentChar != null && (isIn(this.currentChar, LETTERS_DIGITS) || this.currentChar != WHITESPACE)) {
-            string += this.currentChar
-            this.advance()
+            // console.log(this.currentChar + " hehehhehaw")
+            if(isIn(this.currentChar, QUOTES)) {
+                while(this.currentChar != undefined) {
+                    string += this.currentChar
+                    this.advance()
+                }
+                break
+            }
+            // console.log(this.currentChar)
             // console.log(this.currentChar)
             i++
-            if(i == 20) break
+            string += this.currentChar
+            // if(i == 10) break
+            this.advance()
         }
+
+        // console.log("string: " + string)
 
         if(string == "var") {
             result = new fToken.Token(fToken.TokenType.types.VARKEY)
         } else if(isInList(string, SymbolTable.table)) {
             result = new fToken.Token(fToken.TokenType.types.REF, string)
             // console.log("var has been found inside table")
+        } else if(string.split('')[0] == "'" || string.split('')[0] == '"') {
+            if(string.slice(-1) == "'" || string.slice(-1) == '"') {
+                result = new fToken.Token(fToken.TokenType.types.STRING, string.slice(1, -1))
+            }
         } else {
             result = new fToken.Token(fToken.TokenType.types.IDENT, string)
             // console.log("think its an identifier thats the string ----->" + string)
         }
-
+        // console.log("ich bin ein " + JSON.stringify(result))
         return result
     }
 

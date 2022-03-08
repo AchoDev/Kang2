@@ -117,4 +117,25 @@ class ReferenceNode {
     }
 }
 
-module.exports = {PlusNode, MinusNode, AddNode, SubtractNode, MultiplyNode, DivideNode, VarAssignNode, IdentifierNode, ReferenceNode}
+class StringNode {
+    value
+    constructor(val) {
+        this.value = val
+    }
+
+    repr = () => this.value
+}
+
+
+module.exports = {
+    PlusNode, 
+    MinusNode, 
+    AddNode, 
+    SubtractNode, 
+    MultiplyNode, 
+    DivideNode, 
+    VarAssignNode, 
+    IdentifierNode, 
+    ReferenceNode,
+    StringNode
+}

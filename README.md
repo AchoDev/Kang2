@@ -1,6 +1,8 @@
 # KANG2 language
 
 A simple interpreted language made as a successor to the failed language Kangoo
+> It's currently in pre-alpha.
+> Version 0.2
 
 ## Installing
 
@@ -48,9 +50,11 @@ The Identifier can now be used like a number <br>
 ## TODO
 
 - add variables             [x]
-  - add strings               [ ]
+  - add strings             [x]
+    - add anonymous strings [x]
   - add mutation [ ]
-  - add types [ ] 
+  - add types [ ]
+  - add booleans [ ]
 - add functions             [ ]
 - add loops                 [ ]
 - add if statement          [ ]

@@ -38,12 +38,15 @@ class Interpreter {
                 case 'ReferenceNode':
                     result = this.openReferenceNode(node)
                     break
+                case 'StringNode':
+                    result = this.openStringNode(node)
+                    break
                 default:
-                    console.log('\x1b[31m', `CRITICAL NODE ERROR: [${node.constructor.name} cannot be interpreted]`)
+                    console.log('\x1b[31m', `CRITICAL NODE ERROR: [${node.constructor.name} cannot be interpreted], '\x1b[37m'`)
             }
     
         } catch(err) {
-            console.error('\x1b[31m', 'CRITICAL NODE ERROR: [Binary tree could not be built]', '\x1b[37m')
+            console.error('\x1b[31m', 'CRITICAL NODE ERROR: [Syntax tree could not be built]', '\x1b[37m')
             console.log(node, "<-- thats the node man thats not working")
             result = null
         }
@@ -85,6 +88,8 @@ class Interpreter {
         SymbolTable.add(new Variable('any', node.nodeA, this.open(node.nodeB)))
         return node.nodeB.value
     }
+
+    openStringNode = (node) => node.value  
 
     searchSymbol(name) {
         let result

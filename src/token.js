@@ -12,7 +12,8 @@ class TokenType {
         EQ : 8,
         IDENT: 9,
         VARKEY: 10,
-        REF: 11
+        REF: 11,
+        STRING: 12
     })
 }
 

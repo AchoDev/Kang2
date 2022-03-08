@@ -34,7 +34,7 @@ class Parser {
 
         if(this.tokens[this.index] != null) {
             this.raiseError()
-            console.log("Internal Token error")
+            console.log(`Internal Token error [${JSON.stringify(this.currentToken, null, 4)}]`)
         }
         if(settings.showNode()) {
             console.log(result)
@@ -62,7 +62,7 @@ class Parser {
         }
         return result
     }
-
+    
     expr() {
         let result = this.term()
 
@@ -105,40 +105,49 @@ class Parser {
             this.advance()
             result = this.expr()
             this.advance()
-            return result
         } else if(this.currentToken != null && this.currentToken.type == TokenType.types.NUMBER) {
             result = new nodes.PlusNode(this.currentToken.value)
             this.advance()
-            return result
         } else if(this.currentToken != null && this.currentToken.type == TokenType.types.MINUS) {
             this.advance()
             result = new nodes.MinusNode(-this.currentToken.value)
             this.advance()
-            return result
         } else if (this.currentToken != null && this.currentToken.type == TokenType.types.REF) {
             // console.log("hehehhaw " + JSON.stringify(this.currentToken, null, 4))
             result = new nodes.ReferenceNode(this.currentToken.value)
             this.advance()
-            return result
         } else if (this.currentToken != null && (this.currentToken.type == TokenType.types.EQ)) {
             this.advance()
+        } else if (this.currentToken != null && (this.currentToken.type == TokenType.types.STRING)) {
+            result = new nodes.StringNode(this.currentToken.value)
+            this.advance()   
         }
+        return result
     }
 
     createVar() {
+        let result
         this.advance()
         const ident = this.currentToken.value
         this.advance()
 
+
         if(this.currentToken.type != TokenType.types.EQ) {
             console.log('\x1b[31m', `TypeError: '=' expected but ${this.currentToken.value} found instead`)
             return null
-        } 
+        }
         
+        // console.log("")
         this.advance()
-        const result = new nodes.VarAssignNode(ident, this.expr())
+        if(this.currentToken.type == TokenType.types.STRING) {
+            result = new nodes.VarAssignNode(ident, new nodes.StringNode(this.currentToken.value))
+            
+        } else {
+            // console.log("type: " + this.currentToken.type)
+            result = new nodes.VarAssignNode(ident, this.expr())
+        }
 
-        // console.log(this.currentToken + " fjskfjsklföjdkaslöfj")
+        // console.log(this.currentToken + " fjskfjsklföejdkaslöfj")
         this.advance()
 
         return result
