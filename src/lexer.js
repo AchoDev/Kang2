@@ -114,15 +114,25 @@ module.exports = class Lexer {
         let i = 0
 
         while(this.currentChar != null && (isIn(this.currentChar, LETTERS_DIGITS) || this.currentChar != WHITESPACE)) {
-            // console.log(this.currentChar + " hehehhehaw")
+            // if(isIn(this.currentChar, QUOTES)) console.log("hey ich habe keinen vater")
             if(isIn(this.currentChar, QUOTES)) {
-                while(this.currentChar != undefined) {
-                    string += this.currentChar
-                    this.advance()
+                string += this.currentChar
+                this.advance()
+                while(this.currentChar != null) {
+                    if(!isIn(this.currentChar, QUOTES)) {
+                        // console.log(isIn(this.currentChar, QUOTES))
+                        string += this.currentChar
+                        this.advance()
+                        i++
+                        if(i > 25) break
+                    } else {
+                        string += this.currentChar
+                        this.advance()
+                        break
+                    }
                 }
                 break
             }
-            // console.log(this.currentChar)
             // console.log(this.currentChar)
             i++
             string += this.currentChar

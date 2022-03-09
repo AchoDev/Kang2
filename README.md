@@ -49,17 +49,17 @@ The Identifier can now be used like a number <br>
 
 ## TODO
 
-- add variables             [x]
-  - add strings             [x]
-    - add anonymous strings [x]
-  - add mutation [ ]
-  - add types [ ]
-  - add booleans [ ]
-- add functions             [ ]
-- add loops                 [ ]
-- add if statement          [ ]
-- add built in system class [ ]
-- add importing             [ ]
-- make .kg file type with 
-  vsc compatibility         [ ]
-- add custom classes (maybe)[ ]
+- [x] add variables            
+  - [x]add strings            
+    - [x] add anonymous strings
+  - [ ] add mutation
+  - [ ] add types
+  - [ ] add booleans
+- [ ] add functions             
+- [ ] add loops                 
+- [ ] add if statement          
+- [ ] add built in system class 
+- [ ] add importing             
+- [ ] make .kg file type with 
+  vsc compatibility         
+- [ ] add custom classes (maybe)

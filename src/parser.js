@@ -42,26 +42,7 @@ class Parser {
         return result
     }
 
-    wrExpr(tree) {
-        let result = tree
-        this.advance()
-        if(this.currentToken != null && (this.currentToken.type == TokenType.types.PLUS || this.currentToken.type == TokenType.types.MINUS || this.currentToken.type == TokenType.types.MULTIPLY || this.currentToken.type == TokenType.types.DIVIDE)) {
-            if(this.currentToken.type == TokenType.types.MULTIPLY) {
-                this.advance()
-                result = new nodes.AddNode(tree, this.expr())
-            } else if(this.currentToken.type == TokenType.types.DIVIDE) {
-                this.advance()
-                result = new nodes.SubtractNode(tree, this.expr())
-            } else if(this.currentToken.type == TokenType.types.PLUS) {
-                this.advance()
-                result = new nodes.MultiplyNode(tree, this.expr())
-            } else if(this.currentToken.type == TokenType.types.MINUS) {
-                this.advance()
-                result = new nodes.DivideNode(tree, this.expr())
-            }
-        }
-        return result
-    }
+
     
     expr() {
         let result = this.term()
@@ -139,13 +120,13 @@ class Parser {
         
         // console.log("")
         this.advance()
-        if(this.currentToken.type == TokenType.types.STRING) {
-            result = new nodes.VarAssignNode(ident, new nodes.StringNode(this.currentToken.value))
+        // if(this.currentToken.type == TokenType.types.STRING) { <-- i don't know why this exists. it cost me 1 hour of my lifeb
+        //     result = new nodes.VarAssignNode(ident, new nodes.StringNode(this.currentToken.value))
             
-        } else {
+        // } else {
             // console.log("type: " + this.currentToken.type)
             result = new nodes.VarAssignNode(ident, this.expr())
-        }
+        // }
 
         // console.log(this.currentToken + " fjskfjsklföejdkaslöfj")
         this.advance()

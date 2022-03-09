@@ -1,6 +1,14 @@
 const fs = require('fs');
-const path = './src/settings/settings.json'
-let rawdata = fs.readFileSync(path);
+let path
+let rawdata 
+
+try {
+    path = 'settings/settings.json'
+    rawdata = fs.readFileSync(path);
+} catch {
+    path = 'src/settings/settings.json'
+    rawdata = fs.readFileSync(path);
+}
 let settings = JSON.parse(rawdata);
 
 function showNode() {
