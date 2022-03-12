@@ -2,7 +2,7 @@
 
 A simple interpreted language made as a successor to the failed language Kangoo
 > It's currently in pre-alpha.
-> Version 0.2
+> Version 0.3
 
 ## Installing
 
@@ -22,7 +22,7 @@ The syntax currently is very minimal.<br>
 When startingm the first thing you'll see is the active interpreter<br>
 There you type in the code and it'll be interpreted instantly.
 
-### Math
+### Math <- TODO make this better
 
 Type in any equasion to get a result <br>
 `>> 1 + 1`<br>
@@ -46,11 +46,13 @@ The Identifier can now be used like a number <br>
 `>> num3`<br>
 `>> 4`
 
+### Functions (comming soon)
+
 
 ## TODO
 
 - [x] add variables            
-  - [x]add strings            
+  - [x] add strings            
     - [x] add anonymous strings
   - [ ] add mutation
   - [ ] add types
