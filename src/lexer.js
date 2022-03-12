@@ -4,6 +4,7 @@ const DIGITS = '0123456789'
 const LETTERS = `öabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"'`
 const LETTERS_DIGITS = `abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789`
 const QUOTES = `"'`
+const PARENTHESES = "()"
 
 const fToken = require('./token.js')
 const settings = require('./settings/settings.js')
@@ -27,7 +28,7 @@ const isInList = (key, list) => {
     return false
 }
 
-module.exports = class Lexer {
+class Lexer {
 
     text = ''
     index = 0
@@ -76,6 +77,15 @@ module.exports = class Lexer {
             } else if(this.currentChar == '=') {
                 this.advance()
                 tokens.push(new fToken.Token(fToken.TokenType.types.EQ))
+            } else if(this.currentChar == ',') {
+                this.advance()
+                tokens.push(new fToken.Token(fToken.TokenType.types.COMMA))
+            } else if(this.currentChar == "{") {
+                this.advance()
+                tokens.push(new fToken.Token(fToken.TokenType.types.LCURBR))
+            } else if(this.currentChar == "}") {
+                this.advance()
+                tokens.push(new fToken.Token(fToken.TokenType.types.RCURBR))
             }
             
             else {
@@ -109,35 +119,41 @@ module.exports = class Lexer {
     handleString() {
         let string = ""
         let result
-        let valStr = false
 
         let i = 0
 
         while(this.currentChar != null && (isIn(this.currentChar, LETTERS_DIGITS) || this.currentChar != WHITESPACE)) {
-            // if(isIn(this.currentChar, QUOTES)) console.log("hey ich habe keinen vater")
-            if(isIn(this.currentChar, QUOTES)) {
-                string += this.currentChar
-                this.advance()
-                while(this.currentChar != null) {
-                    if(!isIn(this.currentChar, QUOTES)) {
-                        // console.log(isIn(this.currentChar, QUOTES))
-                        string += this.currentChar
-                        this.advance()
-                        i++
-                        if(i > 25) break
-                    } else {
-                        string += this.currentChar
-                        this.advance()
-                        break
+            if(!isIn(this.currentChar, PARENTHESES)) {
+                // if(isIn(this.currentChar, QUOTES)) console.log("hey ich habe keinen vater")
+                if(isIn(this.currentChar, QUOTES)) {
+                    string += this.currentChar
+                    this.advance()
+                    while(this.currentChar != null) {
+                        if(!isIn(this.currentChar, QUOTES)) {
+                            // console.log(isIn(this.currentChar, QUOTES))
+                            string += this.currentChar
+                            this.advance()
+                            i++
+                            if(i > 25) break
+                        } else {
+                            string += this.currentChar
+                            this.advance()
+                            break
+                        }
                     }
+                    break
                 }
+                // console.log(this.currentChar)
+                if(this.currentChar != ",") {
+                    string += this.currentChar
+                } else {
+                    break
+                }
+
+                this.advance()
+            } else {
                 break
-            }
-            // console.log(this.currentChar)
-            i++
-            string += this.currentChar
-            // if(i == 10) break
-            this.advance()
+            }  
         }
 
         // console.log("string: " + string)
@@ -151,7 +167,12 @@ module.exports = class Lexer {
             if(string.slice(-1) == "'" || string.slice(-1) == '"') {
                 result = new fToken.Token(fToken.TokenType.types.STRING, string.slice(1, -1))
             }
-        } else {
+        } else if(string == "func") {
+            result = new fToken.Token(fToken.TokenType.types.FUNCKEY)
+        } else if(string == "return") {
+            result = new fToken.Token(fToken.TokenType.types.RETURN)
+        } 
+        else {
             result = new fToken.Token(fToken.TokenType.types.IDENT, string)
             // console.log("think its an identifier thats the string ----->" + string)
         }
@@ -167,6 +188,7 @@ module.exports = class Lexer {
             return 1
         } else if(this.currentChar == '>') {
             result = new fToken.Token(fToken.TokenType.types.ARROW)
+            this.advance()
         }
         else {
             result = new fToken.Token(fToken.TokenType.types.MINUS)
@@ -175,3 +197,5 @@ module.exports = class Lexer {
         return result
     }
 }
+
+module.exports = {isIn, Lexer}

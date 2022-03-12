@@ -126,6 +126,41 @@ class StringNode {
     repr = () => this.value
 }
 
+class FuncCreateNode {
+    returnNode = []
+    statementNode
+    argumentNode = []
+    symbolTable
+
+    constructor(rNode, sNodes, aNodes, tb) {
+        this.returnNode = rNode
+        this.statementNodes = sNodes
+        this.argumentNode = aNodes
+        this.symbolTable = tb
+
+        console.log(`constructor return: ${rNode} statement: Null argument: ${aNodes}`)
+    }
+
+    repr = () => {
+        return `Function body: ${this.statementNodes} Returns: ${this.returnNode}`
+    }
+}
+
+class StatementSequence {
+    nodes = []
+
+    add(node) {
+        this.nodes.push(node)
+    }
+
+    constructor(argNodes) {
+        this.nodes = argNodes
+    }
+
+    repr = () => {
+        return JSON.stringify(this.nodes, null, 4)
+    }
+}
 
 module.exports = {
     PlusNode, 
@@ -137,5 +172,7 @@ module.exports = {
     VarAssignNode, 
     IdentifierNode, 
     ReferenceNode,
-    StringNode
+    StringNode,
+    FuncCreateNode,
+    StatementSequence,
 }

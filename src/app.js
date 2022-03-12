@@ -8,7 +8,7 @@ console.log("\x1b[32m", "Made by Acho Dev")
 
 console.log("\x1b[37m", "")
 
-cLexer = require('./lexer.js')
+cLexer = require('./lexer.js').Lexer
 
 while(true) {
 

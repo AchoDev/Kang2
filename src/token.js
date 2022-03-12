@@ -13,7 +13,15 @@ class TokenType {
         IDENT: 9,
         VARKEY: 10,
         REF: 11,
-        STRING: 12
+        STRING: 12,
+        FUNCKEY: 13,
+        FUNCIDENT: 14,
+        FUNCCALL: 15,
+        ARG: 16,
+        COMMA: 17,
+        LCURBR: 18,
+        RCURBR: 19,
+        RETURN: 20
     })
 }
 
