@@ -31,10 +31,11 @@ class Variable {
     }
 }
 
-class Function {
+class _Function {
     returns
     body
-    identifier
+    identifier 
+
     constructor(ret, ident, bod) {
         this.returns = ret
         this.body = bod
@@ -42,4 +43,4 @@ class Function {
     }
 }
 
-module.exports = {Variable, SymbolTable, Function}
+module.exports = {Variable, SymbolTable, _Function}

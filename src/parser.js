@@ -160,7 +160,8 @@ class Parser {
         let varList = []
 
         this.advance()
-        const ident = this.currentToken
+        const ident = this.currentToken.value
+        console.log("IDENT -> " + this.currentToken.value)
         this.advance()
         console.log(JSON.stringify(this.currentToken, null, 4) + " AHAHAHHH")
         if(this.currentToken.type == TokenType.types.LPAREN) {
@@ -242,7 +243,7 @@ class Parser {
             console.log("args --> " + args)
         }
 
-        result = new nodes.FuncCreateNode(funcReturn, null, args)
+        result = new nodes.FuncCreateNode(funcReturn, null, args, ident)
         console.log("FUNCCREATENODE: " + JSON.stringify(result, null, 2))
 
         return result

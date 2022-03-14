@@ -130,13 +130,13 @@ class FuncCreateNode {
     returnNode = []
     statementNode
     argumentNode = []
-    symbolTable
+    IdentifierNode
 
-    constructor(rNode, sNodes, aNodes, tb) {
+    constructor(rNode, sNodes, aNodes, ident) {
         this.returnNode = rNode
         this.statementNodes = sNodes
         this.argumentNode = aNodes
-        this.symbolTable = tb
+        this.IdentifierNode = ident
 
         console.log(`constructor return: ${rNode} statement: Null argument: ${aNodes}`)
     }

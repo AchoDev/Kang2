@@ -147,4 +147,39 @@ And the last thing I did was to change the way how the code is parsed. Now every
 
 <br>
 
-### Update 0.3.1: (???)
+### Update 0.3.1: Functions working now! (almost)
+
+> Functions are now understood by the interpreter. So now you'll get a syntax tree with a beautiful function inside. I also learned the hard way that either Node.js or vanilla Javascript has a built in 'Function' class. That's why mine is now named '_Function' <br>
+> I also added a global scale to see, if variables or functions are nested or not.
+
+```javascript
+
+// before
+>> func name(a, b) -> return 'hello'
+[ERROR: Syntax tree could not be builz]
+
+// now
+>> func name(a, b) -> return func name2()
+
+_Function [
+    return: _Function [
+                body = null
+                return = null
+                args = null
+                ident = 'name2'
+            ]
+    body = null
+    args = [a, b]
+    ident = 'name'
+]
+// it doesn't look like this actually but this is
+// easier to recreate
+```
+
+<br>
+
+---
+
+<br>
+
+### Update (???)

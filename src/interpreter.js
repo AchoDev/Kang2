@@ -1,7 +1,9 @@
 const { SubtractNode, MultiplyNode, DivideNode, MinusNode } = require("./nodes")
-const { SymbolTable, Variable } = require("./variable")
+const { SymbolTable, Variable, _Function } = require("./variable")
 
 class Interpreter {
+
+    currentScale = 'global'
 
     interpret(node) {
         return this.open(node)
@@ -41,6 +43,10 @@ class Interpreter {
                 case 'StringNode':
                     result = this.openStringNode(node)
                     break
+                case 'FuncCreateNode':
+                    result = this.createFunction(node)
+                    this.currentScale = node.identifier
+                    break
                 default:
                     console.log('\x1b[31m', `CRITICAL NODE ERROR: [${node.constructor.name} cannot be interpreted], '\x1b[37m'`)
             }
@@ -49,6 +55,7 @@ class Interpreter {
             console.error('\x1b[31m', 'CRITICAL NODE ERROR: [Syntax tree could not be built]', '\x1b[37m')
             console.log(node, "<-- thats the node man thats not working")
             result = null
+            console.log(err)
         }
 
         return result
@@ -86,7 +93,20 @@ class Interpreter {
 
     createVariable(node) {
         SymbolTable.add(new Variable('any', node.nodeA, this.open(node.nodeB)))
+        
         return node.nodeB.value
+    }
+
+    createFunction(node) {
+        let result
+        if(node.returnNode != null) {
+            result = new _Function(this.open(node.returnNode), node.IdentifierNode, null)
+        } else {
+            result = new _Function(null, node.IdentifierNode, null)
+        }
+        console.log("RETURN -> " + node.returnNode)
+        if(this.currentScale == 'global') SymbolTable.add(result)
+        return result
     }
 
     openStringNode = (node) => node.value  
