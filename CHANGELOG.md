@@ -4,7 +4,7 @@
 ### Update 0.1: Math
 
 > The first commit. It just adds basic math operations. To use them, open the active interpreter and type any equaision you like<br>
-```javascript
+```swift
 >> (5 + 5) * 2 + 4<br>
 >> 24
 ```
@@ -17,20 +17,20 @@
 ### Update 0.2: Variables
 
 > The first thing to resemble programming! Now you can make variables <br>
-```javascript
+```swift
 >> var num = 10
 ```
 <br>
 
 > These can now be refered to inside math operations <br>
 
-```javascript
+```swift
 >> num / 2
 >> 5
 ```
 > And they can also be referred to just by typing their identifier<br>
 
-```javascript
+```swift
 >> var num2 = num + 5
 >> num2
 >> 15
@@ -47,20 +47,20 @@
 ### Update 0.2.1: Strings
 > Just simple strings. When creating variables you can set the value as a string
 
-```javascript
+```swift
 >> var name = 'HEHEHEHAW'
 ```
 
 > You can also add numbers to it
 
-```javascript
+```swift
 >> name + 2
 >> HEHEHEHAW2
 ```
 
 > But adding Strings themselves doesn't work yet
 
-```javascript
+```swift
 >> name + 'hey'
 ERROR
 ```
@@ -75,7 +75,7 @@ ERROR
 > Now strings can stand by themselves
 without any variables. So you can now add them to other anonymous strings or to variables
 
-```javascript
+```swift
 >> var name = 'Hello,' + ' ' + 'world!'
 >> name
 >> Hello, world!
@@ -95,7 +95,7 @@ without any variables. So you can now add them to other anonymous strings or to 
 
 > This file now looks decent and strings work now. Before the string detection only worked sometimes. Now it SHOULD work every time (I hope)
 
-```javascript
+```swift
 >> // before
 >> var name1 = "Hello" + " world!"
 >> name1
@@ -117,20 +117,20 @@ without any variables. So you can now add them to other anonymous strings or to 
 > Changes this file from UPDATES.md to CHANGELOG.md because its icon is prettier <br>
 Also added very primitive functions
 
-``` javascript
+``` swift
 >> func name(argA, argB) -> return argA - argB
 ```
 
 > They don't have any statement sequences inside AND you can't call them yet either. But those two will be added soon.<br>
 The return type can be any object. So you can return functions too. This can lead to some very interesting nesting
 
-```javascript
+``` swift
 >> func f1() -> return func f2() -> return func f3() -> return "Hello"
 ```
 
 > You can also return any equasion and variables. As soon as I add declaring variables without initializing them
 
-```javascript
+``` swift
 >> func name() -> return var variable = 10
 ```
 
@@ -152,7 +152,7 @@ And the last thing I did was to change the way how the code is parsed. Now every
 > Functions are now understood by the interpreter. So now you'll get a syntax tree with a beautiful function inside. I also learned the hard way that either Node.js or vanilla Javascript has a built in 'Function' class. That's why mine is now named '_Function' <br>
 > I also added a global scale to see, if variables or functions are nested or not.
 
-```javascript
+``` swift
 
 // before
 >> func name(a, b) -> return 'hello'
