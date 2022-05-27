@@ -1,0 +1,8 @@
+func funcTest() -> return name {
+    var name = 10
+}
+funcTest()
+
+var name1 = "hey"
+var name2 = "acho"
+var name3 = "hahaha"
