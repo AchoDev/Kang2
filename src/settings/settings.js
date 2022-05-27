@@ -1,4 +1,5 @@
 const fs = require('fs');
+const { SymbolTable } = require('../variable');
 let path
 let rawdata 
 
@@ -27,7 +28,7 @@ const processInput = (input) => {
 
 function changeSetting(raw) {
     input = processInput(raw)
-    if(settings[input[1]] != null){
+    if(settings[input[1]] != null || input[1] == 'exit' || input[1] == 'table'){
         switch(input[1]) {
             case 'nodes':
                 if(input[2] == "show" || input[2] == "hide"){
@@ -44,6 +45,13 @@ function changeSetting(raw) {
                 } else {
                     console.log("The 'tokens' setting can only be 'show' or 'hide'")
                 }
+                break
+            case 'exit':
+                console.log("Existing program....")
+                process.exit(1)
+                break
+            case 'table':
+                console.log(SymbolTable.table)
                 break
         }
     } else {

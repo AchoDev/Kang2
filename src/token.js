@@ -21,7 +21,8 @@ class TokenType {
         COMMA: 17,
         LCURBR: 18,
         RCURBR: 19,
-        RETURN: 20
+        RETURN: 20,
+        LINEBR: 21
     })
 }
 
@@ -29,7 +30,7 @@ class Token {
 
     type
     value
-
+    
     constructor(tType, tValue) {
         this.type = tType
         this.value = tValue

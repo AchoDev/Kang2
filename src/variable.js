@@ -1,19 +1,33 @@
 class SymbolTable {
-    static table = []
-    localTable = []
+    // static table = []
+    table = []
 
-    static localTableList = new Map()
+    // static localTableList = new Map()
 
-    static add(variable) {
-        SymbolTable.table.push(variable)
-    }
+    // static add(variable) {
+    //     SymbolTable.table.push(variable)
+    // }
 
     static newLocalTable(name, table) {
         this.localTableList.set(name, table)
     }
 
-    add(variable) {
-        this.localTable.push(variable)
+    add(ident) {
+        this.table.push(ident)
+    }
+
+    get(ident) {
+        table.forEach(element => {
+            if(element.identifier == ident) {
+                return element
+            }
+        });
+    }
+
+    static get(name) {
+        for(const value of SymbolTable.table) {
+            if(value.identifier == name) return value
+        }
     }
 }
 
@@ -34,12 +48,12 @@ class Variable {
 class _Function {
     returns
     body
-    identifier 
+    identifier
 
-    constructor(ret, ident, bod) {
-        this.returns = ret
-        this.body = bod
-        this.identifier = ident
+    constructor(returns, identifier, body) {
+        this.returns = returns
+        this.body = body
+        this.identifier = identifier
     }
 }
 

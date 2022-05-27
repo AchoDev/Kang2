@@ -156,7 +156,7 @@ And the last thing I did was to change the way how the code is parsed. Now every
 
 // before
 >> func name(a, b) -> return 'hello'
-[ERROR: Syntax tree could not be builz]
+[ERROR: Syntax tree could not be built]
 
 // now
 >> func name(a, b) -> return func name2()

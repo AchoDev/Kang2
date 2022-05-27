@@ -130,20 +130,32 @@ class FuncCreateNode {
     returnNode = []
     statementNode
     argumentNode = []
-    IdentifierNode
+    identifierNode
 
-    constructor(rNode, sNodes, aNodes, ident) {
-        this.returnNode = rNode
-        this.statementNodes = sNodes
-        this.argumentNode = aNodes
-        this.IdentifierNode = ident
+    constructor(returnNode, statementNode, argumentNode, identifierNode) {
+        this.returnNode = returnNode
+        this.statementNode = statementNode
+        this.argumentNode = argumentNode
+        this.identifierNode = identifierNode
 
-        console.log(`constructor return: ${rNode} statement: Null argument: ${aNodes}`)
+        console.log(`constructor return: ${returnNode} statement: Null argument: ${argumentNode}`)
     }
 
     repr = () => {
         return `Function body: ${this.statementNodes} Returns: ${this.returnNode}`
     }
+}
+
+class FuncCallNode {
+    ident
+    args
+
+    constructor(identifier, argument) {
+        this.ident = identifier
+        this.args = argument
+    }
+
+    repr = () => `ident: ${ident} args: ${args}`
 }
 
 class StatementSequence {
@@ -154,11 +166,11 @@ class StatementSequence {
     }
 
     constructor(argNodes) {
-        this.nodes = argNodes
+        if(argNodes) this.nodes = argNodes
     }
 
     repr = () => {
-        return JSON.stringify(this.nodes, null, 4)
+        return JSON.stringify(this.nodes, null, 4) 
     }
 }
 
@@ -175,4 +187,5 @@ module.exports = {
     StringNode,
     FuncCreateNode,
     StatementSequence,
+    FuncCallNode,
 }

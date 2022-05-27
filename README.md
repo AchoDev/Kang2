@@ -55,7 +55,7 @@ The Identifier can now be used like a number <br>
   - [x] add strings            
     - [x] add anonymous strings
   - [ ] add mutation
-  - [ ] add types
+  - [ ] add types (not coming)
   - [ ] add booleans
 - [ ] add functions             
 - [ ] add loops                 
