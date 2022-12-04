@@ -47,28 +47,3 @@ The Identifier can now be used like a number <br>
 `>> 4`
 
 ### Functions (comming soon)
-
-
-## TODO
-
-- [x] add variables            
-  - [x] add strings            
-    - [x] add anonymous strings
-  - [ ] add mutation
-  - [ ] add types (not coming)
-  - [ ] add booleans
-- [ ] add functions             
-- [ ] add loops                 
-- [ ] add if statement  
-- [ ] CLEANUP (functions)
-  - [ ] Use better, cleaner variable names in var.js and nodes.js
-  - [ ] reduce open value node to one function
-  - [ ] identNode should use string Token instead of string alone
-    - [ ] interpreter.js change createfunction from Ident to Ident.value  
-  - [ ] find better name for _Function
-  - [ ] Remove annoying console.logs
-- [ ] add built in system class 
-- [ ] add importing             
-- [ ] make .kg file type with 
-  vsc compatibility         
-- [ ] add custom classes (maybe)
