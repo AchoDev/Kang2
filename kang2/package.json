@@ -1,0 +1,25 @@
+{
+  "name": "kang2",
+  "displayName": "Kang2",
+  "description": "Language",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.74.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [{
+      "id": "kang2",
+      "aliases": ["Kang2", "kang2"],
+      "extensions": [".kg"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "kang2",
+      "scopeName": "source.kang2",
+      "path": "./syntaxes/kang2.tmLanguage.json"
+    }]
+  }
+}

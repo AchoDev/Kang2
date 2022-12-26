@@ -16,6 +16,7 @@ class Interpreter {
             switch(node.constructor.name) {
                 case 'StatementSequence':
                     result = this.openStatementSequence(node)
+                    break
                 case 'AddNode':
                     result = this.openAddNode(node)
                     break
@@ -49,6 +50,12 @@ class Interpreter {
                 case 'FuncCallNode':
                     result = this.callFunction(node)
                     break
+                case 'LogNode':
+                    result = this.printValue(node)
+                    break
+                case 'MutateNode':
+                    result = this.mutateVariable(node)
+                    break
                 default:
                     console.log('\x1b[31m', `CRITICAL NODE ERROR: [${node.constructor.name} cannot be interpreted], '\x1b[37m'`)
             }
@@ -57,7 +64,7 @@ class Interpreter {
             console.error('\x1b[31m', 'CRITICAL NODE ERROR: [Syntax tree could not be built]', '\x1b[37m')
             console.log(node, "<-- thats the node man thats not working")
             result = null
-            console.log(err)
+            // console.log(err)
         }
 
         return result
@@ -107,19 +114,27 @@ class Interpreter {
 
     createFunction(node, localTable) {
         let result
-        result = new _Function(node.returnNode, node.IdentifierNode, null)
+        result = new _Function(node.returnNode, node.identifierNode, node.statementNode)
         // console.log("RETURN -> " + node.returnNode)
+        SymbolTable.add(result)
         return result
     }
 
     callFunction(node, prevSymbolTableList, localTable) {
         // console.log("!!!!  " + JSON.stringify(SymbolTable.get(node.ident)))
-        console.log(JSON.stringify(node))
-        console.log("!!!  " + SymbolTable.get(node.ident).returns)
-        return this.open(SymbolTable.get(node.ident).returns)
+        // console.log("!!!  " + SymbolTable.get(node.ident))
+        return this.open(SymbolTable.get(node.ident).body)
     }
 
     openStringNode = (node) => node.value  
+
+    mutateVariable(node) {
+        if(!SymbolTable.mutate(node.ident, this.open(node.value))) console.log(`${node.ident} is undefinded`)
+    }
+
+    printValue(node) {
+        console.log(this.open(node.node))
+    }
 
     searchSymbol(_name) {
         let result

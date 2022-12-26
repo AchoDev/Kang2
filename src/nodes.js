@@ -137,8 +137,6 @@ class FuncCreateNode {
         this.statementNode = statementNode
         this.argumentNode = argumentNode
         this.identifierNode = identifierNode
-
-        console.log(`constructor return: ${returnNode} statement: Null argument: ${argumentNode}`)
     }
 
     repr = () => {
@@ -174,6 +172,22 @@ class StatementSequence {
     }
 }
 
+class LogNode {
+    node   
+    constructor(node) {
+        this.node = node
+    }
+}
+
+class MutateNode {
+    ident
+    value
+    constructor(ident, value) {
+        this.ident = ident
+        this.value = value
+    }
+ }
+
 module.exports = {
     PlusNode, 
     MinusNode, 
@@ -188,4 +202,6 @@ module.exports = {
     FuncCreateNode,
     StatementSequence,
     FuncCallNode,
+    LogNode,
+    MutateNode
 }

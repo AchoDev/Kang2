@@ -1,11 +1,12 @@
-func funcTest() -> return name {
-    var name = 10
-    var hello = "hello world"
-    var math = 10 + 15
+
+func name() {
+    var num = 1
+    
+    var name = "ahmed"
+    num = num + 1
+    log num
 }
 
-func test2() -> return heheeheaw {
-    var name2 = 20
-    var amogus = "yes"
-}
-
+name()
+name()
+name()

@@ -1,5 +1,6 @@
 const Interpreter = require('./syntaxtree/interpreter.js')
 const Parser = require('./syntaxtree/parser.js')
+const { SymbolTable } = require('./variable.js')
 const getText = require('./testing/readFile.js').getFileText
 
 console.clear()
@@ -13,18 +14,22 @@ cLexer = require('./syntaxtree/lexer.js').Lexer
 
 const rawdata = getText()
 
-console.log(rawdata)
+// console.log(rawdata)
 const lexer = new cLexer(rawdata) 
 
 const tokens = lexer.createTokens()
-console.log(tokens)
+// console.log(tokens)
 
 const parser = new Parser(tokens)
 const tree = parser.parse()
 
-console.log(tree)
+// console.log(tree)
+// console.log(tree.nodes[0].statementNode)
 
-console.log("end")
+const interpreter = new Interpreter()
+interpreter.interpret(tree)
+
+console.log(SymbolTable.table)
 
 // while(true) {
 

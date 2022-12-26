@@ -22,7 +22,8 @@ class TokenType {
         LCURBR: 18,
         RCURBR: 19,
         RETURN: 20,
-        LINEBR: 21
+        LINEBR: 21,
+        LOG: 22
     })
 }
 

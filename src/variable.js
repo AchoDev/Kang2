@@ -1,5 +1,7 @@
+
+
 class SymbolTable {
-    // static table = []
+    static table = []
     table = []
 
     // static localTableList = new Map()
@@ -24,10 +26,25 @@ class SymbolTable {
         });
     }
 
+    static add(variable) {
+        this.table.push(variable)
+    }
+
     static get(name) {
         for(const value of SymbolTable.table) {
             if(value.identifier == name) return value
         }
+        return false
+    }
+
+    static mutate(name, newVal) {
+        for(const value of SymbolTable.table) {
+            if(value.identifier == name) {
+                value.value = newVal
+                return true
+            }
+        }
+        return false
     }
 }
 

@@ -49,10 +49,10 @@ class Parser {
             if(statement) result.add(statement)
         }
 
-        if(this.tokens[this.index] != null) {
-            this.raiseError()
-            console.log(`Internal Token error [${JSON.stringify(this.currentToken, null, 4)}]`)
-        }
+        // if(this.tokens[this.index] != null) {
+        //     this.raiseError()
+        //     console.log(`Internal Token error [${JSON.stringify(this.currentToken, null, 4)}]`)
+        // }
 
         if(settings.showNode()) {
             console.log(result)
@@ -68,20 +68,21 @@ class Parser {
             // console.log("ITS Not null !")
             if(!this.currentToken) break
             if(this.currentToken.type == TokenType.types.VARKEY) {
-                console.log("creating var")
                 result = this.createVar()
 
                 // console.log("creating var")
-                return result
             } else if(this.currentToken.type == TokenType.types.FUNCKEY) {
                 result = this.createFunc()
                 this.advance()
-                return result
             } else if(this.currentToken.type == TokenType.types.IDENT) {
                 result = this.handleIdent()
                 this.advance()
-                return result
-            } else {
+            } else if(this.currentToken.type == TokenType.types.LOG) {
+                this.advance()
+                result = new nodes.LogNode(this.expr())
+                this.advance()
+            } 
+            else {
                 this.raiseError(this.currentToken.value)
                 return null
             } 
@@ -91,6 +92,10 @@ class Parser {
             //     this.advance()
             //     // console.log("EXPreSSION")
             // }
+
+
+            return result
+
         } if(this.currentToken.type == TokenType.types.LINEBR) {
             this.advance()
         }
@@ -155,7 +160,11 @@ class Parser {
         } else if (this.currentToken != null && (this.currentToken.type == TokenType.types.STRING)) {
             result = new nodes.StringNode(this.currentToken.value)
             this.advance()   
-        } else if (this.currentToken != null && (this.currentToken.type == TokenType.types.FUNCCALL)) {
+        } else if (this.currentToken != null && this.currentToken.type == TokenType.types.IDENT) {
+            result = this.handleIdent()
+        }
+
+        else if (this.currentToken != null && (this.currentToken.type == TokenType.types.FUNCCALL)) {
             // let args = []
             // while(this.currentToken != TokenType.types.RPAREN) {
             //     args.push 
@@ -163,7 +172,7 @@ class Parser {
 
 
 
-            console.log("FUNCCALL NODE")
+            // console.log("FUNCCALL NODE")
             let args = []
 
             result = new nodes.FuncCallNode(this.currentToken.value, null)
@@ -191,7 +200,7 @@ class Parser {
 
             this.advance()
         }
-        console.log("RESULT: " + result)
+
         return result
     }
 
@@ -294,20 +303,24 @@ class Parser {
 
             this.advance()
 
-            if(this.currentToken != null && this.currentToken.type == TokenType.types.ARROW) { // check for return 
-                this.advance()
-                if(this.currentToken.type == TokenType.types.RETURN) { // check if return keyword is used
-                    // switchIdent()
-                    
+            if(this.currentToken != null) {
+                if(this.currentToken.type == TokenType.types.ARROW) { // check for return 
                     this.advance()
-                    // console.log(this.currentToken.type)
-                    funcReturn = this.statement()
-                    // console.log("FUNC RETURN -> " + this.funcReturn)
-                    // console.log("HALLO")
-                } else {
-                    console.log("Type Error: 'return' expected")
+                    if(this.currentToken.type == TokenType.types.RETURN) { // check if return keyword is used
+                        // switchIdent()
+                        
+                        this.advance()
+                        // console.log(this.currentToken.type)
+                        funcReturn = this.statement()
+                        // console.log("FUNC RETURN -> " + this.funcReturn)
+                        // console.log("HALLO")
+                    } else {
+                        console.log("Type Error: 'return' expected")
+                    }
+                } else if (this.currentToken.type == TokenType.types.LCURBR) {
+                    this.advance()
                 }
-            }
+            } 
 
             // console.log("args --> " + args)
         }
@@ -329,17 +342,25 @@ class Parser {
 
         this.advance()
 
-        if(this.currentToken.type = TokenType.types.LPAREN) {
-            this.advance()
-            if(this.currentToken.type = TokenType.types.RPAREN) {
-                result = new nodes.FuncCallNode(string, null)
+        if(this.currentToken != null) {
+            if (this.currentToken.type == TokenType.types.LPAREN) {
+                this.advance()
+                if(this.currentToken.type == TokenType.types.RPAREN) {
+                    result = new nodes.FuncCallNode(string, null)
+                    return result
+                } else {
+                    this.raiseSyntaxError("left parenthesis")
+                }
+            } else if (this.currentToken.type == TokenType.types.EQ) {
+                this.advance()
+                result = new nodes.MutateNode(string, this.expr())
                 return result
-            } else {
-                this.raiseSyntaxError("left parenthesis")
             }
-        } else {
-            this.raiseSyntaxError("just stop")
-        }
+             else {
+                result = new nodes.ReferenceNode(string)
+                return result
+            }
+        } 
     }
 
 }

@@ -37,6 +37,8 @@ class Lexer {
         this.text = inputText.split('')
         this.input = inputText
         this.advance()
+
+        // console.log(this.text)
     }
 
     advance() {
@@ -156,8 +158,8 @@ class Lexer {
                             // console.log(isIn(this.currentChar, QUOTES))
                             string += this.currentChar
                             this.advance()
-                            i++
-                            if(i > 25) break
+                            // i++
+                            // if(i > 25) break
                         } else {
                             string += this.currentChar
                             this.advance()
@@ -167,7 +169,7 @@ class Lexer {
                     break
                 }
                 // console.log(this.currentChar)
-                if(this.currentChar != ",") {
+                if(this.currentChar != "," && this.currentChar != "\n") {
                     string += this.currentChar
                 } else {
                     break
@@ -203,7 +205,9 @@ class Lexer {
             result = new fToken.Token(fToken.TokenType.types.FUNCKEY)
         } else if(string == "return") {
             result = new fToken.Token(fToken.TokenType.types.RETURN)
-        } 
+        } else if(string == "log") {
+            result = new fToken.Token(fToken.TokenType.types.LOG)
+        }
         else {
             result = new fToken.Token(fToken.TokenType.types.IDENT, string)
             // console.log("think its an identifier thats the string ----->" + string)
