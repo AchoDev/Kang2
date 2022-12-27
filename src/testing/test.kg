@@ -1,10 +1,17 @@
 
+var number = 10
+
 func name() {
     var num = 1
     
     var name = "ahmed"
     num = num + 1
     log num
+
+    number = number + 1
+
+    log number
+    log ""
 }
 
 name()

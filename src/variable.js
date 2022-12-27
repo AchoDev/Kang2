@@ -3,6 +3,7 @@
 class SymbolTable {
     static table = []
     table = []
+    parent
 
     // static localTableList = new Map()
 
@@ -14,16 +15,23 @@ class SymbolTable {
         this.localTableList.set(name, table)
     }
 
+    setParent(parent) {
+        this.parent = parent
+    }
+
     add(ident) {
         this.table.push(ident)
     }
 
-    get(ident) {
-        table.forEach(element => {
-            if(element.identifier == ident) {
-                return element
-            }
-        });
+    get(name) {
+        for(const value of this.table) {
+            if(value.identifier == name) return value
+        }
+        return false
+    }
+
+    clear() {
+        this.table = []
     }
 
     static add(variable) {
@@ -35,6 +43,15 @@ class SymbolTable {
             if(value.identifier == name) return value
         }
         return false
+    }
+
+    mutate(name, newVal) {
+        for(const value of this.table) {
+            if(value.identifier == name) {
+                value.value = newVal
+                return true
+            }
+        }
     }
 
     static mutate(name, newVal) {
@@ -71,6 +88,7 @@ class _Function {
         this.returns = returns
         this.body = body
         this.identifier = identifier
+        // this.parentST = parent
     }
 }
 

@@ -29,7 +29,7 @@ const tree = parser.parse()
 const interpreter = new Interpreter()
 interpreter.interpret(tree)
 
-console.log(SymbolTable.table)
+console.log("")
 
 // while(true) {
 
