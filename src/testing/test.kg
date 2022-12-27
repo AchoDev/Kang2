@@ -1,19 +1,25 @@
+var num = 1
 
-var number = 10
+loop 15 {
 
-func name() {
-    var num = 1
-    
-    var name = "ahmed"
+    var output = ""
+    var print = false
+
+    if (num % 3) == 0 {
+        output = "fizz"
+        print = true
+    }
+
+    if (num % 5) == 0{
+        output = output + "buzz"
+        print = true
+    }
+
+    if print {
+        log ""
+        log num
+        log output
+    }
+
     num = num + 1
-    log num
-
-    number = number + 1
-
-    log number
-    log ""
 }
-
-name()
-name()
-name()

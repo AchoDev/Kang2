@@ -24,7 +24,6 @@ const parser = new Parser(tokens)
 const tree = parser.parse()
 
 // console.log(tree)
-// console.log(tree.nodes[0].statementNode)
 
 const interpreter = new Interpreter()
 interpreter.interpret(tree)

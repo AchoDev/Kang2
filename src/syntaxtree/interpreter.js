@@ -1,3 +1,4 @@
+
 const { SubtractNode, MultiplyNode, DivideNode, MinusNode } = require("../nodes")
 const { SymbolTable, Variable, _Function } = require("../variable")
 
@@ -29,6 +30,9 @@ class Interpreter {
                 case 'DivideNode':
                     result = this.openDivideNode(node, localTable)
                     break
+                case 'ModuloNode':
+                    result = this.openModuloNode(node, localTable)
+                    break
                 case 'PlusNode':
                     result = this.openPlusNode(node, localTable)
                     break
@@ -56,6 +60,21 @@ class Interpreter {
                 case 'MutateNode':
                     result = this.mutateVariable(node, localTable)
                     break
+                case 'LoopNode':
+                    result =  this.loop(node, localTable)
+                    break
+                case 'BooleanNode':
+                    result = this.openBooleanNode(node)
+                    break
+                case 'ConditionNode':
+                    result = this.checkCondition(node, localTable)
+                    break
+                case 'CompareNode':
+                    result = this.compareValues(node, localTable)
+                    break
+                case 'AndNode':
+                    result = this.andValues(node, localTable)
+                    break
                 default:
                     console.log('\x1b[31m', `CRITICAL NODE ERROR: [${node.constructor.name} cannot be interpreted], '\x1b[37m'`)
             }
@@ -70,6 +89,8 @@ class Interpreter {
         return result
 
     }
+
+    openBooleanNode = (node) => node.bool
 
     openStatementSequence(node, localTable) {
         node.nodes.forEach(element => {
@@ -93,12 +114,24 @@ class Interpreter {
         return this.open(node.nodeA, localTable) / this.open(node.nodeB, localTable)
     }
 
+    openModuloNode(node, localTable) {
+        return this.open(node.nodeA, localTable) % this.open(node.nodeB, localTable)
+    }
+
     openPlusNode(node) {
         return node.value
     }
 
     openMinusNode(node) {
         return -node.value
+    }
+
+    compareValues(node, localTable) {
+        return this.open(node.nodeA, localTable) == (this.open(node.nodeB, localTable))
+    }
+
+    andValues(node, localTable) {
+        return this.open(node.nodeA, localTable) && this.open(node.nodeB, localTable)
     }
 
     openReferenceNode(node, localTable) {
@@ -136,6 +169,12 @@ class Interpreter {
         return result
     }
 
+    loop(node, localTable) {
+        for(let i = this.open(node.conditionNode, localTable); i > 0; i--) {
+            this.open(node.statementNode, new SymbolTable(localTable))
+        }
+    }
+
     openStringNode = (node) => node.value  
 
     mutateVariable(node, localTable) {
@@ -151,6 +190,12 @@ class Interpreter {
 
     printValue(node, localTable) {
         console.log(this.open(node.node, localTable))
+    }
+
+    checkCondition(node, localTable) {
+        if(this.open(node.condition, localTable)) {
+            this.open(node.statementNode, new SymbolTable(localTable))
+        }
     }
 
     searchSymbol(_name, table) {

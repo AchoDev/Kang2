@@ -5,6 +5,10 @@ class SymbolTable {
     table = []
     parent
 
+    constructor(parent) {
+        this.parent = parent
+    }
+
     // static localTableList = new Map()
 
     // static add(variable) {
@@ -24,10 +28,15 @@ class SymbolTable {
     }
 
     get(name) {
-        for(const value of this.table) {
-            if(value.identifier == name) return value
+
+        let curTable = this
+
+        while(curTable) {
+            for(const value of curTable.table) {
+                if(value.identifier == name) return value
+            }
+            curTable = curTable.parent   
         }
-        return false
     }
 
     clear() {

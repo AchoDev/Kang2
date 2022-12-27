@@ -1,4 +1,5 @@
 
+
 class PlusNode {
     value
 
@@ -186,7 +187,63 @@ class MutateNode {
         this.ident = ident
         this.value = value
     }
- }
+}
+
+class ModuloNode {
+    nodeA
+    nodeB
+
+    constructor(dividendNode, divisorNode) {
+        this.nodeA = dividendNode
+        this.nodeB = divisorNode
+    }
+}
+
+class LoopNode {
+    statementNode
+    conditionNode
+
+    constructor(condition, statements) {
+        this.conditionNode = condition
+        this.statementNode = statements
+    }
+}
+
+class BooleanNode {
+    bool
+
+    constructor(bool) {
+        this.bool = bool
+    }
+}
+
+class ConditionNode {
+    condition
+    statementNode
+
+    constructor(condition, statements) {
+        this.condition = condition
+        this.statementNode = statements
+    }
+}
+
+class CompareNode {
+    nodeA
+    nodeB
+    constructor(nodeA, nodeB) {
+        this.nodeA = nodeA
+        this.nodeB = nodeB
+    }
+}
+
+class AndNode {
+    nodeA
+    nodeB
+    constructor(nodeA, nodeB) {
+        this.nodeA = nodeA
+        this.nodeB = nodeB
+    }
+}
 
 module.exports = {
     PlusNode, 
@@ -203,5 +260,11 @@ module.exports = {
     StatementSequence,
     FuncCallNode,
     LogNode,
-    MutateNode
+    MutateNode,
+    ModuloNode,
+    LoopNode,
+    BooleanNode,
+    ConditionNode,
+    CompareNode,
+    AndNode,
 }

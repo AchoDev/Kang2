@@ -81,7 +81,11 @@ class Parser {
                 this.advance()
                 result = new nodes.LogNode(this.expr())
                 this.advance()
-            } 
+            }  else if(this.currentToken.type == TokenType.types.LOOPKEY) {
+                result = this.handleLoop()
+            } else if(this.currentToken.type == TokenType.types.CONDKEY) {
+                result = this.handleCondition()
+            }
             else {
                 this.raiseError(this.currentToken.value)
                 return null
@@ -108,8 +112,14 @@ class Parser {
     expr() {
         let result = this.term()
 
-        while(this.currentToken != null && (this.currentToken.type == TokenType.types.PLUS || this.currentToken.type == TokenType.types.MINUS)) {
-            if(this.currentToken.type == TokenType.types.PLUS) {
+        while(this.currentToken != null && (this.currentToken.type == TokenType.types.PLUS || this.currentToken.type == TokenType.types.MINUS || this.currentToken.type == TokenType.types.COMP || this.currentToken.type == TokenType.types.AND)) {
+            if(this.currentToken.type == TokenType.types.COMP) {
+                this.advance()
+                result = new nodes.CompareNode(result, this.term())
+            } else if(this.currentToken.type == TokenType.types.AND) {
+                this.advance()
+                result = new nodes.AndNode(result, this.term())
+            } else if(this.currentToken.type == TokenType.types.PLUS) {
                 this.advance()
                 result = new nodes.AddNode(result, this.term())
             } else if(this.currentToken.type == TokenType.types.MINUS) {
@@ -124,13 +134,16 @@ class Parser {
     term() {
         let result = this.factor()
 
-        while(this.currentToken != null && (this.currentToken.type == TokenType.types.MULTIPLY || this.currentToken.type == TokenType.types.DIVIDE)) {
+        while(this.currentToken != null && (this.currentToken.type == TokenType.types.MULTIPLY || this.currentToken.type == TokenType.types.DIVIDE || this.currentToken.type == TokenType.types.MOD)) {
             if(this.currentToken.type == TokenType.types.MULTIPLY) {
                 this.advance()
                 result = new nodes.MultiplyNode(result, this.term())
             } else if(this.currentToken.type == TokenType.types.DIVIDE) {
                 this.advance()
                 result = new nodes.DivideNode(result, this.term())
+            } else if(this.currentToken.type == TokenType.types.MOD) {
+                this.advance()
+                result = new nodes.ModuloNode(result, this.term())
             }
         }
 
@@ -162,6 +175,12 @@ class Parser {
             this.advance()   
         } else if (this.currentToken != null && this.currentToken.type == TokenType.types.IDENT) {
             result = this.handleIdent()
+        } else if(this.currentToken != null && this.currentToken.type == TokenType.types.TRUE) {
+            result = new nodes.BooleanNode(true)
+            this.advance()
+        } else if(this.currentToken != null && this.currentToken.type == TokenType.types.FALSE) {
+            result = new nodes.BooleanNode(false)
+            this.advance()
         }
 
         else if (this.currentToken != null && (this.currentToken.type == TokenType.types.FUNCCALL)) {
@@ -341,7 +360,7 @@ class Parser {
         let result
 
         this.advance()
-
+        
         if(this.currentToken != null) {
             if (this.currentToken.type == TokenType.types.LPAREN) {
                 this.advance()
@@ -356,11 +375,34 @@ class Parser {
                 result = new nodes.MutateNode(string, this.expr())
                 return result
             }
-             else {
-                result = new nodes.ReferenceNode(string)
-                return result
-            }
-        } 
+        }
+
+        result = new nodes.ReferenceNode(string)
+        return result
+        
+    }
+
+    handleLoop() {
+        this.advance()
+
+        const cond = this.expr()
+        this.advance()
+        const result = new nodes.LoopNode(cond, this.statementSequence())
+
+        this.advance()
+
+        return result
+    }
+
+    handleCondition() {
+        this.advance()
+        const cond = this.expr()
+        this.advance()
+        const result = new nodes.ConditionNode(cond, this.statementSequence())
+
+        this.advance()
+
+        return result
     }
 
 }

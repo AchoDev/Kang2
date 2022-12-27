@@ -1,0 +1,28 @@
+
+var number = 10
+
+func function() {
+    var num2 = 100
+
+    log num2
+}
+
+func name() {
+    var num = 1
+    
+    var name = "ahmed"
+    num = num + 1
+    log num
+
+    number = number + 1
+
+    log number
+    log ""
+
+    function()
+
+}
+
+name()
+name()
+name()

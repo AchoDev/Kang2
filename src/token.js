@@ -23,7 +23,18 @@ class TokenType {
         RCURBR: 19,
         RETURN: 20,
         LINEBR: 21,
-        LOG: 22
+        LOG: 22,
+        LOOPKEY: 23,
+        CONDKEY: 24,
+        COLON: 25,
+        TYPE: 26,
+        MOD: 27,
+        TRUE: 28,
+        FALSE: 29,
+        COMP: 30,
+        AND: 31,
+        GRTHAN: 32,
+        LSTHAN: 32
     })
 }
 
