@@ -1,6 +1,7 @@
 
-const { SubtractNode, MultiplyNode, DivideNode, MinusNode } = require("../nodes")
+const { SubtractNode, MultiplyNode, DivideNode, MinusNode, StringNode, VarAssignNode, ReferenceNode } = require("../nodes")
 const { SymbolTable, Variable, _Function } = require("../variable")
+const rls = require("readline-sync")
 
 class Interpreter {
 
@@ -57,6 +58,9 @@ class Interpreter {
                 case 'LogNode':
                     result = this.printValue(node, localTable)
                     break
+                case 'InputNode':
+                    result = this.getInput(node, localTable)
+                    break
                 case 'MutateNode':
                     result = this.mutateVariable(node, localTable)
                     break
@@ -74,6 +78,9 @@ class Interpreter {
                     break
                 case 'AndNode':
                     result = this.andValues(node, localTable)
+                    break
+                case 'ReturnNode':
+                    result = this.open(node.value, localTable)
                     break
                 default:
                     console.log('\x1b[31m', `CRITICAL NODE ERROR: [${node.constructor.name} cannot be interpreted], '\x1b[37m'`)
@@ -93,9 +100,19 @@ class Interpreter {
     openBooleanNode = (node) => node.bool
 
     openStatementSequence(node, localTable) {
-        node.nodes.forEach(element => {
+        // node.nodes.forEach(element => {
+        //     this.open(element, localTable)
+        // });
+
+        for(let element of node.nodes) {
+
+            if(element.constructor.name == 'ReturnNode') {
+                return this.open(element, localTable)
+            }
+
             this.open(element, localTable)
-        });
+        }
+        return false
     }
 
     openAddNode(node, localTable) {
@@ -140,14 +157,28 @@ class Interpreter {
     }
 
     createVariable(node, localTable) {
-        localTable.add(new Variable('any', node.nodeA, this.open(node.nodeB)))
-        
-        return node.nodeB.value
+
+        let value
+        if(node.nodeB) {
+            value = this.open(node.nodeB)
+        } 
+
+        localTable.add(new Variable('any', node.nodeA, value))
     }
 
     createFunction(node, localTable) {
+
+        let returns = node.returnNode
+
+        if(node.returnNode.constructor.name == "VarAssignNode") {
+            node.statementNode.nodes.unshift(node.returnNode)
+            returns = new ReferenceNode(returns.nodeA)
+        }
+
+
+
         let result
-        result = new _Function(node.returnNode, node.identifierNode, node.statementNode, localTable)
+        result = new _Function(returns, node.identifierNode, node.statementNode, localTable)
         // console.log("RETURN -> " + node.returnNode)
         localTable.add(result)
         return result
@@ -163,16 +194,36 @@ class Interpreter {
         }
 
         const table = new SymbolTable()
+
+        
         table.setParent(localTable)
 
         let result = this.open(func.body, table)
-        return result
+
+        if(result) {
+            return result
+        }
+
+        return this.open(func.returns, table)
     }
 
     loop(node, localTable) {
-        for(let i = this.open(node.conditionNode, localTable); i > 0; i--) {
-            this.open(node.statementNode, new SymbolTable(localTable))
+
+        const condition = this.open(node.conditionNode, localTable)
+
+        switch(typeof condition) {
+            case "boolean":
+                while(this.open(node.conditionNode, localTable)) {
+                    this.open(node.statementNode, new SymbolTable(localTable))
+                }
+                break
+            case "number":
+                for(let i = this.open(node.conditionNode, localTable); i > 0; i--) {
+                    this.open(node.statementNode, new SymbolTable(localTable))
+                }
+                break
         }
+
     }
 
     openStringNode = (node) => node.value  
@@ -192,9 +243,19 @@ class Interpreter {
         console.log(this.open(node.node, localTable))
     }
 
+    getInput(node, localTable) {
+        const input = rls.question(node.questionNode)
+        // const input = "here have me some absolutely beautiful input mate"
+
+        this.mutateVariable({"ident": node.outputNode.varName, "value": new StringNode(input)}, localTable)
+        return true
+    }
+
     checkCondition(node, localTable) {
         if(this.open(node.condition, localTable)) {
             this.open(node.statementNode, new SymbolTable(localTable))
+        } else if(node.elseNode) {
+            this.open(node.elseNode, new SymbolTable(localTable))
         }
     }
 

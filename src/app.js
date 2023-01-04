@@ -23,7 +23,7 @@ const tokens = lexer.createTokens()
 const parser = new Parser(tokens)
 const tree = parser.parse()
 
-// console.log(tree)
+console.log(tree)
 
 const interpreter = new Interpreter()
 interpreter.interpret(tree)

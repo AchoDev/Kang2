@@ -81,7 +81,31 @@ class Parser {
                 this.advance()
                 result = new nodes.LogNode(this.expr())
                 this.advance()
-            }  else if(this.currentToken.type == TokenType.types.LOOPKEY) {
+
+            } else if(this.currentToken.type == TokenType.types.RETURN) {
+                this.advance()
+                result = new nodes.ReturnNode(this.expr())
+                this.advance()
+                 
+            } else if(this.currentToken.type == TokenType.types.INPUT) {
+                this.advance()
+
+                let question
+
+                if(this.currentToken.type == TokenType.types.STRING) {
+                    question = this.currentToken.value
+                    this.advance()
+                }
+
+                if(this.currentToken.type == TokenType.types.ARROW) {
+                    this.advance()
+                    result = new nodes.InputNode(this.factor(), question)
+                    this.advance()
+                }
+
+                this.advance()
+
+            } else if(this.currentToken.type == TokenType.types.LOOPKEY) {
                 result = this.handleLoop()
             } else if(this.currentToken.type == TokenType.types.CONDKEY) {
                 result = this.handleCondition()
@@ -118,7 +142,7 @@ class Parser {
                 result = new nodes.CompareNode(result, this.term())
             } else if(this.currentToken.type == TokenType.types.AND) {
                 this.advance()
-                result = new nodes.AndNode(result, this.term())
+                result = new nodes.AndNode(result, this.expr())
             } else if(this.currentToken.type == TokenType.types.PLUS) {
                 this.advance()
                 result = new nodes.AddNode(result, this.term())
@@ -229,24 +253,16 @@ class Parser {
         const ident = this.currentToken.value
         this.advance()
 
+        let value
 
-        if(this.currentToken.type != TokenType.types.EQ) {
-            console.log('\x1b[31m', `TypeError: '=' expected but ${this.currentToken.value} found instead`)
-            return null
+        if(this.currentToken.type == TokenType.types.EQ) {
+            this.advance()
+            value = this.expr()
+            this.advance()
         }
-        
-        // console.log("")
-        this.advance()
-        // if(this.currentToken.type == TokenType.types.STRING) { <-- i don't know why this exists. it cost me 1 hour of my life
-        //     result = new nodes.VarAssignNode(ident, new nodes.StringNode(this.currentToken.value))
-            
-        // } else {
-            // console.log("type: " + this.currentToken.type)
-            result = new nodes.VarAssignNode(ident, this.expr())
-        // }
 
-        // console.log(this.currentToken + " fjskfjsklföejdkaslöfj")
-        this.advance()
+        result = new nodes.VarAssignNode(ident, value)
+        
 
         return result
     }
@@ -325,18 +341,17 @@ class Parser {
             if(this.currentToken != null) {
                 if(this.currentToken.type == TokenType.types.ARROW) { // check for return 
                     this.advance()
-                    if(this.currentToken.type == TokenType.types.RETURN) { // check if return keyword is used
-                        // switchIdent()
-                        
+
+                    if(this.currentToken.type == TokenType.types.VARKEY) {
                         this.advance()
-                        // console.log(this.currentToken.type)
-                        funcReturn = this.statement()
-                        // console.log("FUNC RETURN -> " + this.funcReturn)
-                        // console.log("HALLO")
+                        funcReturn = new nodes.VarAssignNode(this.currentToken.value)
+                        this.advance()
                     } else {
-                        console.log("Type Error: 'return' expected")
+                        funcReturn = this.expr()
                     }
-                } else if (this.currentToken.type == TokenType.types.LCURBR) {
+
+                }
+                if (this.currentToken.type == TokenType.types.LCURBR) {
                     this.advance()
                 }
             } 
@@ -398,9 +413,25 @@ class Parser {
         this.advance()
         const cond = this.expr()
         this.advance()
-        const result = new nodes.ConditionNode(cond, this.statementSequence())
+        const statements = this.statementSequence()
 
         this.advance()
+
+        let elseNode
+
+        if(this.currentToken && this.currentToken.type == TokenType.types.ELSEIF) {
+            elseNode = this.handleCondition()
+        } else if(this.currentToken && this.currentToken.type == TokenType.types.ELSE) {
+            this.advance()
+            this.advance()
+            this.advance()
+            elseNode = this.statementSequence()
+            this.advance()
+        }
+
+        const result = new nodes.ConditionNode(cond, statements, elseNode)
+
+        // this.advance()
 
         return result
     }

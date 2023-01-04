@@ -1,0 +1,17 @@
+
+var num = 1
+
+loop 100 {
+
+    if num % 3 == 0 && num % 5 == 0 {
+        log "fizzbuzz"
+    } elseif num % 3 == 0 {
+        log "fizz"
+    } elseif num % 5 == 0 {
+        log "buzz"
+    } else {
+        log num
+    }
+
+    num = num + 1
+}

@@ -127,6 +127,13 @@ class StringNode {
     repr = () => this.value
 }
 
+class ReturnNode {
+    value
+    constructor(value) {
+        this.value = value
+    }
+}
+
 class FuncCreateNode {
     returnNode = []
     statementNode
@@ -180,6 +187,15 @@ class LogNode {
     }
 }
 
+class InputNode {
+    outputNode
+    questionNode
+    constructor(output, question) {
+        this.outputNode = output
+        this.questionNode = question
+    }
+}
+
 class MutateNode {
     ident
     value
@@ -206,6 +222,7 @@ class LoopNode {
     constructor(condition, statements) {
         this.conditionNode = condition
         this.statementNode = statements
+
     }
 }
 
@@ -220,10 +237,12 @@ class BooleanNode {
 class ConditionNode {
     condition
     statementNode
+    elseNode
 
-    constructor(condition, statements) {
+    constructor(condition, statements, elseStatement) {
         this.condition = condition
         this.statementNode = statements
+        this.elseNode = elseStatement
     }
 }
 
@@ -260,6 +279,7 @@ module.exports = {
     StatementSequence,
     FuncCallNode,
     LogNode,
+    InputNode,
     MutateNode,
     ModuloNode,
     LoopNode,
@@ -267,4 +287,5 @@ module.exports = {
     ConditionNode,
     CompareNode,
     AndNode,
+    ReturnNode
 }

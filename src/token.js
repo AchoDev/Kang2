@@ -34,7 +34,10 @@ class TokenType {
         COMP: 30,
         AND: 31,
         GRTHAN: 32,
-        LSTHAN: 32
+        LSTHAN: 32,
+        ELSEIF: 33,
+        ELSE: 34,
+        INPUT: 35,
     })
 }
 

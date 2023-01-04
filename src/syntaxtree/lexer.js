@@ -120,7 +120,10 @@ class Lexer {
                 tokens.push(new fToken.Token(fToken.TokenType.types.MOD))
             } else if(this.currentChar == "&") {
                 this.advance()
-                if (this.currentChar == "&") tokens.push(new fToken.Token(fToken.TokenType.types.AND))
+                if (this.currentChar == "&")  {
+                    this.advance()
+                    tokens.push(new fToken.Token(fToken.TokenType.types.AND))
+                }
                 else console.log("& --> ?????")
             }
             
@@ -212,26 +215,52 @@ class Lexer {
             if(string.slice(-1) == "'" || string.slice(-1) == '"') {
                 result = new fToken.Token(fToken.TokenType.types.STRING, string.slice(1, -1))
             }
-        } else if(string == "func") {
-            result = new fToken.Token(fToken.TokenType.types.FUNCKEY)
-        } else if(string == "return") {
-            result = new fToken.Token(fToken.TokenType.types.RETURN)
-        } else if(string == "log") {
-            result = new fToken.Token(fToken.TokenType.types.LOG)
-        } else if(string == "loop") {
-            result = new fToken.Token(fToken.TokenType.types.LOOPKEY)
-        } else if(string == "if") {
-            result = new fToken.Token(fToken.TokenType.types.CONDKEY)
-        } else if(string == "true") {
-            result = new fToken.Token(fToken.TokenType.types.TRUE)
-        } else if(string == "false") {
-            result = new fToken.Token(fToken.TokenType.types.FALSE)
+        } else {
+            switch(string) {
+                case 'func':
+                    result = new fToken.Token(fToken.TokenType.types.FUNCKEY)
+                    break
+                
+                case 'return':
+                    result = new fToken.Token(fToken.TokenType.types.RETURN)
+                    break
+                
+                case 'log':
+                    result = new fToken.Token(fToken.TokenType.types.LOG)
+                    break
+            
+                case 'loop':
+                    result = new fToken.Token(fToken.TokenType.types.LOOPKEY)
+                    break
+
+                case 'if':
+                    result = new fToken.Token(fToken.TokenType.types.CONDKEY)
+                    break
+
+                case 'true':
+                    result = new fToken.Token(fToken.TokenType.types.TRUE)
+                    break
+
+                case 'false':
+                    result = new fToken.Token(fToken.TokenType.types.FALSE)
+                    break
+
+                case 'elseif':
+                    result = new fToken.Token(fToken.TokenType.types.ELSEIF)
+                    break
+                
+                case 'else':
+                    result = new fToken.Token(fToken.TokenType.types.ELSE)
+                    break
+
+                case 'input':
+                    result = new fToken.Token(fToken.TokenType.types.INPUT)
+                    break
+
+                default:
+                    result = new fToken.Token(fToken.TokenType.types.IDENT, string)
+            }
         }
-        else {
-            result = new fToken.Token(fToken.TokenType.types.IDENT, string)
-            // console.log("think its an identifier thats the string ----->" + string)
-        }
-        // console.log("ich bin ein " + JSON.stringify(result))
         return result
     }
 
