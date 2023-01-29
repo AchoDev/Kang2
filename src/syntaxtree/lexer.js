@@ -4,12 +4,11 @@ const DIGITS = '0123456789'
 const LETTERS = `öabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"'`
 const LETTERS_DIGITS = `abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789`
 const QUOTES = `"'`
-const PARENTHESES = "()"
+const BRACKETS = "(){}[]<>"
 
-const fToken = require('../token.js')
+const { TokenType, Token } = require('../token.js')
 const settings = require('../settings/settings.js')
-const keywords = require('../enum.js').KeyWord
-const SymbolTable = require('../variable.js').SymbolTable
+const { isJSDocThisTag } = require('typescript')
 
 
 const isIn = (char, rawarr) => { 
@@ -65,76 +64,141 @@ class Lexer {
     //     console.log(statements)
     // }
 
+    getCurrentToken() {
+        let token
+
+        if(this.currentChar == WHITESPACE){
+            this.advance()
+        } else if(isIn(this.currentChar, DIGITS)) {
+            token = this.generateNumber()
+        } else if(isIn(this.currentChar, LETTERS)) {
+            token = this.handleString()
+        } else {
+            switch(this.currentChar) {
+                case '+':
+                    this.advance()
+                    token = new Token(TokenType.PLUS)
+                    break
+
+                case '-':
+                    token = this.handleMinus()
+                    break
+
+                case '*':
+                    this.advance()
+                    token = new Token(TokenType.MULTIPLY)
+                    break
+
+                case '/':
+                    this.advance()
+                    token = new Token(TokenType.DIVIDE)
+                    break
+
+                case '(':
+                    this.advance()
+                    token = new Token(TokenType.LPAREN)
+                    break
+
+                case ')':
+                    this.advance()
+                    token = new Token(TokenType.RPAREN)
+                    break
+                
+                case '=':
+                    this.advance()
+                    if (this.currentChar == "=") {
+                        token = new Token(TokenType.COMP, COMPARISON_TYPE.EQ)
+                        this.advance()
+                    }
+                    else token = new Token(TokenType.EQ)
+                    break
+                
+                case ',':
+                    this.advance()
+                    token = new Token(TokenType.COMMA)
+                    break
+                
+                case '{':
+                    this.advance()
+                    token = new Token(TokenType.LCURBR)
+                    break
+
+                case '}':
+                    this.advance()
+                    token = new Token(TokenType.RCURBR)
+                    break
+
+                case '\n':
+                    this.advance()
+                    token = new Token(TokenType.LINEBR)
+                    break
+                
+                case '%':
+                    this.advance()
+                    token = new Token(TokenType.MOD)
+                    break
+
+                case '&':
+                    this.advance()
+                    if (this.currentChar == "&")  {
+                        this.advance()
+                        token = new Token(TokenType.COMP, COMPARISON_TYPE.AND)
+                    }
+                    else console.log("active references work in progress")
+                    break
+
+                case ']':
+                    this.advance()
+                    token = new Token(TokenType.RSQRBR)
+                    break
+
+                case '[':
+                    this.advance()
+                    token = new Token(TokenType.LSQRBR)
+                    break
+
+                case '<':
+                    this.advance()
+                    token = new Token(TokenType.COMP, COMPARISON_TYPE.LESS)
+                    if(this.currentChar == "=") token.value = COMPARISON_TYPE.LESSEQ
+                    break
+
+                case '>':
+                    this.advance()
+                    token = new Token(TokenType.COMP, COMPARISON_TYPE.GREATER)
+                    if(this.currentChar == "=") token.value = COMPARISON_TYPE.GREATEREQ
+                    break
+                
+                case "!":
+                    this.advance()
+                    token = new Token(TokenType.NOT)
+
+                    if(this.currentChar == "=") {
+                        this.advance()
+                        token = new Token(TokenType.COMP, COMPARISON_TYPE.EQNOT)
+                    }
+                    break
+
+                default:
+                    console.log(`character: ${this.currentChar} is undefined`)
+                    process.exit(0)
+            }
+
+        }
+
+        return token
+    }
+    
     createTokens() {
 
         let tokens = []
 
         while(this.currentChar != null) {
-
-            if(this.currentChar == WHITESPACE){
-                this.advance()
-            } else if(isIn(this.currentChar, DIGITS)) {
-                tokens.push(this.generateNumber())
-            } else if(isIn(this.currentChar, LETTERS)) {
-                tokens.push(this.handleString())
-            } else if(this.currentChar == '+') {
-                this.advance()
-                tokens.push(new fToken.Token(fToken.TokenType.types.PLUS))
-            } else if(this.currentChar == '-') {
-                const res = this.handleMinus()
-                if(res == 1) return null
-                else tokens.push(res)
-            } else if(this.currentChar == '*') {
-                this.advance()
-                tokens.push(new fToken.Token(fToken.TokenType.types.MULTIPLY))
-            } else if(this.currentChar == '/') {
-                this.advance()
-                tokens.push(new fToken.Token(fToken.TokenType.types.DIVIDE))
-            } else if(this.currentChar == '(') {
-                this.advance()
-                tokens.push(new fToken.Token(fToken.TokenType.types.LPAREN))
-            } else if(this.currentChar == ')') {
-                this.advance()
-                tokens.push(new fToken.Token(fToken.TokenType.types.RPAREN))
-            } else if(this.currentChar == '=') {
-                this.advance()
-                if (this.currentChar == "=") {
-                    tokens.push(new fToken.Token(fToken.TokenType.types.COMP))
-                    this.advance()
-                }
-                else tokens.push(new fToken.Token(fToken.TokenType.types.EQ))
-            } else if(this.currentChar == ',') {
-                this.advance()
-                tokens.push(new fToken.Token(fToken.TokenType.types.COMMA))
-            } else if(this.currentChar == "{") {
-                this.advance()
-                tokens.push(new fToken.Token(fToken.TokenType.types.LCURBR))
-            } else if(this.currentChar == "}") {
-                this.advance()
-                tokens.push(new fToken.Token(fToken.TokenType.types.RCURBR))
-            } else if(this.currentChar == "\n") {
-                this.advance()
-                tokens.push(new fToken.Token(fToken.TokenType.types.LINEBR));
-            } else if(this.currentChar == "%") {
-                this.advance()
-                tokens.push(new fToken.Token(fToken.TokenType.types.MOD))
-            } else if(this.currentChar == "&") {
-                this.advance()
-                if (this.currentChar == "&")  {
-                    this.advance()
-                    tokens.push(new fToken.Token(fToken.TokenType.types.AND))
-                }
-                else console.log("& --> ?????")
-            }
-            
-            else {
-                console.log(`big error man stop using ${this.currentChar} ok?`)
-                return tokens
-            }
+            const token = this.getCurrentToken()
+            if(token) tokens.push(token)
         }
-
+            
         return tokens
-
     }
 
     generateNumber() {
@@ -152,7 +216,7 @@ class Lexer {
             this.advance()
         }
 
-        return new fToken.Token(fToken.TokenType.types.NUMBER, parseFloat(numberStr))
+        return new Token(TokenType.NUMBER, parseFloat(numberStr))
     }
 
     handleString() {
@@ -162,7 +226,7 @@ class Lexer {
         let i = 0
 
         while(this.currentChar != null && (isIn(this.currentChar, LETTERS_DIGITS) || this.currentChar != WHITESPACE)) {
-            if(!isIn(this.currentChar, PARENTHESES)) {
+            if(!isIn(this.currentChar, BRACKETS)) {
                 // if(isIn(this.currentChar, QUOTES)) console.log("hey ich habe keinen vater")
                 if(isIn(this.currentChar, QUOTES)) {
                     string += this.currentChar
@@ -198,12 +262,12 @@ class Lexer {
         // console.log("string: " + string)
 
         if(string == "var") {
-            result = new fToken.Token(fToken.TokenType.types.VARKEY)
+            result = new Token(TokenType.VARKEY)
         } 
         // else if(isInList(string, SymbolTable.table)) {
-        //     result = new fToken.Token(fToken.TokenType.types.REF, string)
+        //     result = new Token(TokenType.REF, string)
         //     if(this.currentChar == "(") {
-        //         result = new fToken.Token(fToken.TokenType.types.FUNCCALL, string)
+        //         result = new Token(TokenType.FUNCCALL, string)
         //     } else {
         //         // console.log("NOT FUNC --> " + this.text[this.index] + " " + this.index)
         //     }
@@ -213,52 +277,52 @@ class Lexer {
         
          else if(string.split('')[0] == "'" || string.split('')[0] == '"') {
             if(string.slice(-1) == "'" || string.slice(-1) == '"') {
-                result = new fToken.Token(fToken.TokenType.types.STRING, string.slice(1, -1))
+                result = new Token(TokenType.STRING, string.slice(1, -1))
             }
         } else {
             switch(string) {
                 case 'func':
-                    result = new fToken.Token(fToken.TokenType.types.FUNCKEY)
+                    result = new Token(TokenType.FUNCKEY)
                     break
                 
                 case 'return':
-                    result = new fToken.Token(fToken.TokenType.types.RETURN)
+                    result = new Token(TokenType.RETURN)
                     break
                 
                 case 'log':
-                    result = new fToken.Token(fToken.TokenType.types.LOG)
+                    result = new Token(TokenType.LOG)
                     break
             
                 case 'loop':
-                    result = new fToken.Token(fToken.TokenType.types.LOOPKEY)
+                    result = new Token(TokenType.LOOPKEY)
                     break
 
                 case 'if':
-                    result = new fToken.Token(fToken.TokenType.types.CONDKEY)
+                    result = new Token(TokenType.CONDKEY)
                     break
 
                 case 'true':
-                    result = new fToken.Token(fToken.TokenType.types.TRUE)
+                    result = new Token(TokenType.TRUE)
                     break
 
                 case 'false':
-                    result = new fToken.Token(fToken.TokenType.types.FALSE)
+                    result = new Token(TokenType.FALSE)
                     break
 
                 case 'elseif':
-                    result = new fToken.Token(fToken.TokenType.types.ELSEIF)
+                    result = new Token(TokenType.ELSEIF)
                     break
                 
                 case 'else':
-                    result = new fToken.Token(fToken.TokenType.types.ELSE)
+                    result = new Token(TokenType.ELSE)
                     break
 
                 case 'input':
-                    result = new fToken.Token(fToken.TokenType.types.INPUT)
+                    result = new Token(TokenType.INPUT)
                     break
 
                 default:
-                    result = new fToken.Token(fToken.TokenType.types.IDENT, string)
+                    result = new Token(TokenType.IDENT, string)
             }
         }
         return result
@@ -271,15 +335,25 @@ class Lexer {
             settings.changeSetting(this.input)
             return 1
         } else if(this.currentChar == '>') {
-            result = new fToken.Token(fToken.TokenType.types.ARROW)
+            result = new Token(TokenType.ARROW)
             this.advance()
         }
         else {
-            result = new fToken.Token(fToken.TokenType.types.MINUS)
+            result = new Token(TokenType.MINUS)
         }
 
         return result
     }
 }
 
-module.exports = {isIn, Lexer}
+const COMPARISON_TYPE = Object.freeze({
+    EQ: 1,
+    EQNOT: 2,
+    GREATER: 3,
+    LESS: 4,
+    GREATEREQ: 5,
+    LESSEQ: 6,
+    AND: 7
+})
+
+module.exports = {isIn, Lexer, COMPARISON_TYPE}

@@ -3,6 +3,8 @@ const Parser = require('./syntaxtree/parser.js')
 const { SymbolTable } = require('./variable.js')
 const getText = require('./testing/readFile.js').getFileText
 
+var seconds = new Date().getTime() / 1000;
+
 console.clear()
 
 console.log("\x1b[35m", "Kang-2 CONSOLE")
@@ -23,10 +25,12 @@ const tokens = lexer.createTokens()
 const parser = new Parser(tokens)
 const tree = parser.parse()
 
-console.log(tree)
+// console.log(tree)
 
 const interpreter = new Interpreter()
 interpreter.interpret(tree)
+
+console.log(`\nruntime: ${((new Date().getTime() / 1000) - seconds).toFixed(3)}s`)
 
 console.log("")
 

@@ -92,12 +92,13 @@ class _Function {
     returns
     body
     identifier
+    arguments
 
-    constructor(returns, identifier, body) {
+    constructor(returns, identifier, body, args) {
         this.returns = returns
         this.body = body
         this.identifier = identifier
-        // this.parentST = parent
+        this.arguments = args
     }
 }
 

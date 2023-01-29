@@ -4,7 +4,7 @@ const nodes = require("../nodes.js")
 const { Token } = require("../token.js")
 const settings = require("../settings/settings.js")
 const { SymbolTable, Variable } = require("../variable.js")
-const { isIn } = require("./lexer.js")
+const { isIn, COMPARISON_TYPE } = require("./lexer.js")
 
 class Parser {
 
@@ -17,8 +17,14 @@ class Parser {
         this.advance()
     }
 
-    raiseError(error) {
+    raiseUnderstandingError(error) {
         console.log(`Type error: "${error}" was not understood`)
+        process.exit(1)
+    }
+
+    raiseError(error)  {
+        console.log(`${error}`)
+        process.exit(1)
     }
 
     raiseSyntaxError(syntax) {
@@ -43,7 +49,7 @@ class Parser {
         }
         
         
-        while(this.currentToken && this.currentToken.type != TokenType.types.RCURBR) {
+        while(this.currentToken && this.currentToken.type != TokenType.RCURBR) {
             if(!this.currentToken) break
             const statement = this.statement()
             if(statement) result.add(statement)
@@ -64,40 +70,40 @@ class Parser {
     statement() {
 
         let result
-        while(this.currentToken.type != TokenType.types.LINEBR) {
+        while(this.currentToken.type != TokenType.LINEBR) {
             // console.log("ITS Not null !")
             if(!this.currentToken) break
-            if(this.currentToken.type == TokenType.types.VARKEY) {
+            if(this.currentToken.type == TokenType.VARKEY) {
                 result = this.createVar()
 
                 // console.log("creating var")
-            } else if(this.currentToken.type == TokenType.types.FUNCKEY) {
+            } else if(this.currentToken.type == TokenType.FUNCKEY) {
                 result = this.createFunc()
                 this.advance()
-            } else if(this.currentToken.type == TokenType.types.IDENT) {
+            } else if(this.currentToken.type == TokenType.IDENT) {
                 result = this.handleIdent()
                 this.advance()
-            } else if(this.currentToken.type == TokenType.types.LOG) {
+            } else if(this.currentToken.type == TokenType.LOG) {
                 this.advance()
                 result = new nodes.LogNode(this.expr())
                 this.advance()
 
-            } else if(this.currentToken.type == TokenType.types.RETURN) {
+            } else if(this.currentToken.type == TokenType.RETURN) {
                 this.advance()
                 result = new nodes.ReturnNode(this.expr())
                 this.advance()
-                 
-            } else if(this.currentToken.type == TokenType.types.INPUT) {
+
+            } else if(this.currentToken.type == TokenType.INPUT) {
                 this.advance()
 
                 let question
 
-                if(this.currentToken.type == TokenType.types.STRING) {
+                if(this.currentToken.type == TokenType.STRING) {
                     question = this.currentToken.value
                     this.advance()
                 }
 
-                if(this.currentToken.type == TokenType.types.ARROW) {
+                if(this.currentToken.type == TokenType.ARROW) {
                     this.advance()
                     result = new nodes.InputNode(this.factor(), question)
                     this.advance()
@@ -105,13 +111,13 @@ class Parser {
 
                 this.advance()
 
-            } else if(this.currentToken.type == TokenType.types.LOOPKEY) {
+            } else if(this.currentToken.type == TokenType.LOOPKEY) {
                 result = this.handleLoop()
-            } else if(this.currentToken.type == TokenType.types.CONDKEY) {
+            } else if(this.currentToken.type == TokenType.CONDKEY) {
                 result = this.handleCondition()
             }
             else {
-                this.raiseError(this.currentToken.value)
+                this.raiseError("this is not a statement")
                 return null
             } 
             // else {
@@ -124,7 +130,7 @@ class Parser {
 
             return result
 
-        } if(this.currentToken.type == TokenType.types.LINEBR) {
+        } if(this.currentToken.type == TokenType.LINEBR) {
             this.advance()
         }
 
@@ -136,17 +142,23 @@ class Parser {
     expr() {
         let result = this.term()
 
-        while(this.currentToken != null && (this.currentToken.type == TokenType.types.PLUS || this.currentToken.type == TokenType.types.MINUS || this.currentToken.type == TokenType.types.COMP || this.currentToken.type == TokenType.types.AND)) {
-            if(this.currentToken.type == TokenType.types.COMP) {
+        while(this.currentToken != null &&
+            (this.currentToken.type == TokenType.PLUS || 
+                this.currentToken.type == TokenType.MINUS || 
+                this.currentToken.type == TokenType.COMP)) {
+
+            if(this.currentToken.type == TokenType.COMP) {
+                let value
+                const op = this.currentToken.value
                 this.advance()
-                result = new nodes.CompareNode(result, this.term())
-            } else if(this.currentToken.type == TokenType.types.AND) {
-                this.advance()
-                result = new nodes.AndNode(result, this.expr())
-            } else if(this.currentToken.type == TokenType.types.PLUS) {
+                if(op == COMPARISON_TYPE.AND) {
+                    value = this.expr()
+                } else value = this.term()
+                result = new nodes.CompareNode(result, value, op)
+            } else if(this.currentToken.type == TokenType.PLUS) {
                 this.advance()
                 result = new nodes.AddNode(result, this.term())
-            } else if(this.currentToken.type == TokenType.types.MINUS) {
+            } else if(this.currentToken.type == TokenType.MINUS) {
                 this.advance()
                 result = new nodes.SubtractNode(result, this.term())
             }
@@ -158,14 +170,14 @@ class Parser {
     term() {
         let result = this.factor()
 
-        while(this.currentToken != null && (this.currentToken.type == TokenType.types.MULTIPLY || this.currentToken.type == TokenType.types.DIVIDE || this.currentToken.type == TokenType.types.MOD)) {
-            if(this.currentToken.type == TokenType.types.MULTIPLY) {
+        while(this.currentToken != null && (this.currentToken.type == TokenType.MULTIPLY || this.currentToken.type == TokenType.DIVIDE || this.currentToken.type == TokenType.MOD)) {
+            if(this.currentToken.type == TokenType.MULTIPLY) {
                 this.advance()
                 result = new nodes.MultiplyNode(result, this.term())
-            } else if(this.currentToken.type == TokenType.types.DIVIDE) {
+            } else if(this.currentToken.type == TokenType.DIVIDE) {
                 this.advance()
                 result = new nodes.DivideNode(result, this.term())
-            } else if(this.currentToken.type == TokenType.types.MOD) {
+            } else if(this.currentToken.type == TokenType.MOD) {
                 this.advance()
                 result = new nodes.ModuloNode(result, this.term())
             }
@@ -177,70 +189,38 @@ class Parser {
     factor() {
         let result
 
-        if(this.currentToken != null && this.currentToken.type == TokenType.types.LPAREN) {
+        if(this.currentToken != null && this.currentToken.type == TokenType.LPAREN) {
             this.advance()
             result = this.expr()
             this.advance()
-        } else if(this.currentToken != null && this.currentToken.type == TokenType.types.NUMBER) {
+        } else if(this.currentToken != null && this.currentToken.type == TokenType.NUMBER) {
             result = new nodes.PlusNode(this.currentToken.value)
             this.advance()
-        } else if(this.currentToken != null && this.currentToken.type == TokenType.types.MINUS) {
+        } else if(this.currentToken != null && this.currentToken.type == TokenType.MINUS) {
             this.advance()
             result = new nodes.MinusNode(-this.currentToken.value)
             this.advance()
-        } else if (this.currentToken != null && this.currentToken.type == TokenType.types.REF) {
+        } else if (this.currentToken != null && this.currentToken.type == TokenType.REF) {
             // console.log("hehehhaw " + JSON.stringify(this.currentToken, null, 4))
             result = new nodes.ReferenceNode(this.currentToken.value)
             this.advance()
-        } else if (this.currentToken != null && (this.currentToken.type == TokenType.types.EQ)) {
+        } else if (this.currentToken != null && (this.currentToken.type == TokenType.EQ)) {
             this.advance()
-        } else if (this.currentToken != null && (this.currentToken.type == TokenType.types.STRING)) {
+        } else if (this.currentToken != null && (this.currentToken.type == TokenType.STRING)) {
             result = new nodes.StringNode(this.currentToken.value)
             this.advance()   
-        } else if (this.currentToken != null && this.currentToken.type == TokenType.types.IDENT) {
+        } else if (this.currentToken != null && this.currentToken.type == TokenType.IDENT) {
             result = this.handleIdent()
-        } else if(this.currentToken != null && this.currentToken.type == TokenType.types.TRUE) {
+        } else if(this.currentToken != null && this.currentToken.type == TokenType.TRUE) {
             result = new nodes.BooleanNode(true)
             this.advance()
-        } else if(this.currentToken != null && this.currentToken.type == TokenType.types.FALSE) {
+        } else if(this.currentToken != null && this.currentToken.type == TokenType.FALSE) {
             result = new nodes.BooleanNode(false)
             this.advance()
         }
 
-        else if (this.currentToken != null && (this.currentToken.type == TokenType.types.FUNCCALL)) {
-            // let args = []
-            // while(this.currentToken != TokenType.types.RPAREN) {
-            //     args.push 
-            // }
-
-
-
-            // console.log("FUNCCALL NODE")
-            let args = []
-
-            result = new nodes.FuncCallNode(this.currentToken.value, null)
-            this.advance()
-            
-            // check if left bracket after funccall node
-            if(this.currentToken != TokenType.types.LPAREN) this.raiseError("left bracket is missing")
-            this.advance()
-
-            if(this.currentToken != TokenType.types.RPAREN) this.raiseError("right bracket missing (parameters are disabled due to maintenance)")
-
-            // get all parameters inside brackets
-
-            // while(this.currentToken != TokenType.types.RPAREN) {
-            //     if(this.currentToken == ident) {
-            //         args.push(this.currentToken.value)
-            //     }
-            //     this.advance()
-            //     if(
-            //         this.currentToken != TokenType.types.COMMA &&
-            //         this.currentToken != TokenType.types.RPAREN
-            //         ) this.raiseError("comma missing man")
-            //     else this.advance()
-            // }
-
+        else if(this.currentToken != null && this.currentToken.type == TokenType.LSQRBR) {
+            result = this.handleArray()
             this.advance()
         }
 
@@ -255,7 +235,7 @@ class Parser {
 
         let value
 
-        if(this.currentToken.type == TokenType.types.EQ) {
+        if(this.currentToken.type == TokenType.EQ) {
             this.advance()
             value = this.expr()
             this.advance()
@@ -278,20 +258,20 @@ class Parser {
         const ident = this.currentToken.value // getting identifier
 
         this.advance() // current token -> (
-        if(this.currentToken.type == TokenType.types.LPAREN) { // checking if ()
+        if(this.currentToken.type == TokenType.LPAREN) { // checking if ()
             this.advance() 
-            while(this.currentToken.type != TokenType.types.RPAREN) { // checking if ()
-                if(this.currentToken.type == TokenType.types.IDENT) { // getting all arguments 
+            while(this.currentToken.type != TokenType.RPAREN) { // checking if ()
+                if(this.currentToken.type == TokenType.IDENT) { // getting all arguments 
                     args.push(this.currentToken.value) // if arg is found push into args list
                     this.advance()
-                    if(this.currentToken.type == TokenType.types.COMMA) { // check for comma
+                    if(this.currentToken.type == TokenType.COMMA) { // check for comma
                         this.advance()
-                    } else if(this.currentToken.type == TokenType.types.RPAREN) { // if right parenthesis break
+                    } else if(this.currentToken.type == TokenType.RPAREN) { // if right parenthesis break
                         break
                     } else {
                         this.raiseError("NO COMMA type: " + this.currentToken.type) // check for comma error
                     }
-                } else if(this.currentToken.type == TokenType.types.COMMA) { // check for comma error
+                } else if(this.currentToken.type == TokenType.COMMA) { // check for comma error
                     this.raiseError("WRONG COMMA")
                     break
                 }
@@ -323,7 +303,7 @@ class Parser {
             //         // console.log(args.join("") + "SElAM THIS IS ARG JOIN !!" + newCurrent.value)
             //         // console.log("IS IN TRUE OR FALSe => " + isIn(newCurrent.value, args.join("")))
             //         if(newCurrent != null && isIn(newCurrent.value, args.join(""))) {
-            //             this.tokens[newIndex].type = TokenType.types.REF
+            //             this.tokens[newIndex].type = TokenType.REF
             //         } else if(newCurrent == null) {
             //             break
             //         }
@@ -339,10 +319,10 @@ class Parser {
             this.advance()
 
             if(this.currentToken != null) {
-                if(this.currentToken.type == TokenType.types.ARROW) { // check for return 
+                if(this.currentToken.type == TokenType.ARROW) { // check for return 
                     this.advance()
 
-                    if(this.currentToken.type == TokenType.types.VARKEY) {
+                    if(this.currentToken.type == TokenType.VARKEY) {
                         this.advance()
                         funcReturn = new nodes.VarAssignNode(this.currentToken.value)
                         this.advance()
@@ -351,7 +331,7 @@ class Parser {
                     }
 
                 }
-                if (this.currentToken.type == TokenType.types.LCURBR) {
+                if (this.currentToken.type == TokenType.LCURBR) {
                     this.advance()
                 }
             } 
@@ -363,11 +343,17 @@ class Parser {
 
         const funcStatements = this.statementSequence();
 
-        result = new nodes.FuncCreateNode(funcReturn, funcStatements, null, ident)
+        result = new nodes.FuncCreateNode(funcReturn, funcStatements, args, ident)
         // console.log("FUNCCREATENODE: " + JSON.stringify(result, null, 2))
 
         return result
 
+    }
+
+    skipLineBreaks() {
+        while(this.currentToken != null && this.currentToken.type == TokenType.LINEBR) {
+            this.advance()
+        }
     }
 
     handleIdent() {
@@ -377,24 +363,72 @@ class Parser {
         this.advance()
         
         if(this.currentToken != null) {
-            if (this.currentToken.type == TokenType.types.LPAREN) {
+            if (this.currentToken.type == TokenType.LPAREN) {
                 this.advance()
-                if(this.currentToken.type == TokenType.types.RPAREN) {
-                    result = new nodes.FuncCallNode(string, null)
+
+                let args = []
+
+                while(this.currentToken.type != TokenType.RPAREN) {
+                    args.push(this.expr())
+                    if(this.currentToken != null && this.currentToken.type == TokenType.COMMA) {
+                        this.advance()
+                    }
+                }
+
+
+                if(this.currentToken.type == TokenType.RPAREN) {
+                    result = new nodes.FuncCallNode(string, args)
                     return result
                 } else {
-                    this.raiseSyntaxError("left parenthesis")
+                    this.raiseSyntaxError("right parenthesis")
                 }
-            } else if (this.currentToken.type == TokenType.types.EQ) {
+            } else if (this.currentToken.type == TokenType.EQ) {
                 this.advance()
                 result = new nodes.MutateNode(string, this.expr())
                 return result
+            } else if(this.currentToken.type == TokenType.LSQRBR) {
+                this.advance()
+
+                this.skipLineBreaks()
+
+                result = new nodes.ArrayReferenceNode(string, this.expr())
+
+                this.skipLineBreaks()
+
+                if(this.currentToken.type != TokenType.RSQRBR) {
+                    console.log("right square bracket missing")
+                }
+
+                this.advance()
+
+                if(this.currentToken.type == TokenType.EQ) {
+                    this.advance()
+                    result = new nodes.MutateArrayNode(result, this.expr())
+                }
+
+                return result
+
             }
         }
 
         result = new nodes.ReferenceNode(string)
         return result
         
+    }
+
+    handleArray() {
+        this.advance()
+
+        const array = []
+
+        while(this.currentToken.type != TokenType.RSQRBR) {
+            array.push(this.expr())
+            if(this.currentToken.type == TokenType.COMMA) {
+                this.advance()
+            }
+        }
+
+        return new nodes.ArrayNode(array)
     }
 
     handleLoop() {
@@ -412,18 +446,28 @@ class Parser {
     handleCondition() {
         this.advance()
         const cond = this.expr()
+
+        while(this.currentToken.type != TokenType.LCURBR) {
+            this.advance()
+        }
         this.advance()
+
         const statements = this.statementSequence()
 
         this.advance()
 
         let elseNode
 
-        if(this.currentToken && this.currentToken.type == TokenType.types.ELSEIF) {
+
+        while(this.currentToken.type == TokenType.LINEBR) {
+            this.advance()
+        }
+
+        if(this.currentToken && this.currentToken.type == TokenType.ELSEIF) {
             elseNode = this.handleCondition()
-        } else if(this.currentToken && this.currentToken.type == TokenType.types.ELSE) {
-            this.advance()
-            this.advance()
+        } else if(this.currentToken && this.currentToken.type == TokenType.ELSE) {
+            
+            while(this.currentToken.type != TokenType.LCURBR) this.advance()
             this.advance()
             elseNode = this.statementSequence()
             this.advance()

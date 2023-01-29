@@ -1,12 +1,18 @@
 
-const { SubtractNode, MultiplyNode, DivideNode, MinusNode, StringNode, VarAssignNode, ReferenceNode } = require("../nodes")
+const { SubtractNode, MultiplyNode, DivideNode, MinusNode, StringNode, VarAssignNode, ReferenceNode, MutateNode, ArrayNode } = require("../nodes")
 const { SymbolTable, Variable, _Function } = require("../variable")
 const rls = require("readline-sync")
+const { COMPARISON_TYPE } = require("./lexer")
 
 class Interpreter {
 
     interpret(node) {
         return this.open(node, new SymbolTable())
+    }
+
+    raiseError(error) {
+        console.log(error)
+        process.exit(1)
     }
 
     open(node, localTable) {
@@ -82,6 +88,18 @@ class Interpreter {
                 case 'ReturnNode':
                     result = this.open(node.value, localTable)
                     break
+                case 'ArrayNode':
+                    result = this.convertArray(node, localTable)
+                    break
+                case 'ArrayReferenceNode':
+                    result = this.getFromArray(node, localTable)
+                    break
+                case 'MutateArrayNode':
+                    result = this.mutateArray(node, localTable)
+                    break
+                case 'SizeComparisonNode':
+                    result = this.compareSizes(node, localTable)
+                    break
                 default:
                     console.log('\x1b[31m', `CRITICAL NODE ERROR: [${node.constructor.name} cannot be interpreted], '\x1b[37m'`)
             }
@@ -144,33 +162,77 @@ class Interpreter {
     }
 
     compareValues(node, localTable) {
-        return this.open(node.nodeA, localTable) == (this.open(node.nodeB, localTable))
+        
+        const value1 = this.open(node.nodeA, localTable)
+        const value2 = this.open(node.nodeB, localTable)
+        
+        switch(node.operator) {
+            case COMPARISON_TYPE.AND:
+                return value1 && value2
+            case COMPARISON_TYPE.EQ:
+                return value1 == value2
+            case COMPARISON_TYPE.EQNOT:
+                return value1 != value2
+            case COMPARISON_TYPE.GREATER:
+                return value1 > value2
+            case COMPARISON_TYPE.LESS:
+                return value1 < value2
+            case COMPARISON_TYPE.GREATEREQ:
+                return value1 >= value2
+            case COMPARISON_TYPE.LESSEQ:
+                return value1 <= value2
+        }
+    }
+
+    compareSizes(node, localTable) {
+        if(node.operator == "<") return this.open(node.nodeA, localTable) < this.open(node.nodeB, localTable)
+        else return this.open(node.nodeA, localTable) > this.open(node.nodeB, localTable)
     }
 
     andValues(node, localTable) {
         return this.open(node.nodeA, localTable) && this.open(node.nodeB, localTable)
     }
 
+    structuredClone = val => {
+        return JSON.parse(JSON.stringify(val))
+    }
+    
     openReferenceNode(node, localTable) {
         // console.log("ident: " + node.varName)
-        return this.searchSymbol(node.varName, localTable)
+        return this.structuredClone(this.searchSymbol(node.varName, localTable))
     }
 
-    createVariable(node, localTable) {
 
+    createVariable(node, localTable) {
         let value
         if(node.nodeB) {
-            value = this.open(node.nodeB)
+            value = this.structuredClone(this.open(node.nodeB, localTable))
         } 
 
         localTable.add(new Variable('any', node.nodeA, value))
+    }
+
+    convertArray(node, localTable) {
+        const array = []
+
+        for(let value of node.array) {
+            array.push(this.open(value, localTable))
+        }
+
+        return array
+    }
+
+    getFromArray(node, localTable) {
+        const array = this.searchSymbol(node.ident, localTable)
+
+        return array[this.open(node.index, localTable)]
     }
 
     createFunction(node, localTable) {
 
         let returns = node.returnNode
 
-        if(node.returnNode.constructor.name == "VarAssignNode") {
+        if(node.returnNode != null && node.returnNode.constructor.name == "VarAssignNode") {
             node.statementNode.nodes.unshift(node.returnNode)
             returns = new ReferenceNode(returns.nodeA)
         }
@@ -178,7 +240,7 @@ class Interpreter {
 
 
         let result
-        result = new _Function(returns, node.identifierNode, node.statementNode, localTable)
+        result = new _Function(returns, node.identifierNode, node.statementNode, node.argumentNode)
         // console.log("RETURN -> " + node.returnNode)
         localTable.add(result)
         return result
@@ -193,9 +255,12 @@ class Interpreter {
             console.log(`${node.ident} does not exist`)
         }
 
+        for(let i = 0; i < node.args.length; i++) {
+            func.body.nodes.unshift(new VarAssignNode(func.arguments[i], node.args[i]))
+        }
+
         const table = new SymbolTable()
 
-        
         table.setParent(localTable)
 
         let result = this.open(func.body, table)
@@ -203,8 +268,7 @@ class Interpreter {
         if(result) {
             return result
         }
-
-        return this.open(func.returns, table)
+        if(func.returns) return this.open(func.returns, table)
     }
 
     loop(node, localTable) {
@@ -228,11 +292,26 @@ class Interpreter {
 
     openStringNode = (node) => node.value  
 
-    mutateVariable(node, localTable) {
-        while(!localTable.mutate(node.ident, this.open(node.value, localTable))) {
+    mutateArray(node, localTable) {
+
+        const ident = node.arrayReference.ident
+        const newValue = this.open(node.value, localTable)
+        const index = this.open(node.arrayReference.index, localTable)
+
+        let updatedArray = this.searchSymbol(ident, localTable)
+        updatedArray[index] = newValue
+            
+        return this.mutateVariable(new MutateNode(ident, updatedArray, true), localTable, true)
+    }
+
+    mutateVariable(node, localTable, isConverted=false) {
+
+        const value = isConverted ? node.value : this.open(node.value, localTable) 
+
+        while(!localTable.mutate(node.ident, value)) {
             localTable = localTable.parent
             if(!localTable) {
-                console.log(`${node.ident} is undefinded`)
+                console.log(`${node.ident} cannot be changed cuz undefined`)
                 return
             }
         }
@@ -279,10 +358,11 @@ class Interpreter {
             table = table.parent
         }
 
-        if (result != null) return result 
+        if (result != null) return result
 
         // console.log("found nothing man  " + JSON.stringify(SymbolTable.table, null, 4))
-        return null
+        console.log(_name + " is undefined")
+        process.exit(1)
     }
 }
 

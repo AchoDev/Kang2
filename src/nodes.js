@@ -114,7 +114,7 @@ class ReferenceNode {
     }
 
     repr = () => {
-        return `Ref: ${varName}`
+        return `ref`
     }
 }
 
@@ -249,9 +249,11 @@ class ConditionNode {
 class CompareNode {
     nodeA
     nodeB
-    constructor(nodeA, nodeB) {
+    operator
+    constructor(nodeA, nodeB, operator) {
         this.nodeA = nodeA
         this.nodeB = nodeB
+        this.operator = operator
     }
 }
 
@@ -259,6 +261,42 @@ class AndNode {
     nodeA
     nodeB
     constructor(nodeA, nodeB) {
+        this.nodeA = nodeA
+        this.nodeB = nodeB
+    }
+}
+
+class ArrayNode {
+    array
+    constructor(array) {
+        this.array = array
+    }
+}
+
+class ArrayReferenceNode {
+    ident
+    index
+    constructor(ident, index) {
+        this.ident = ident
+        this.index = index
+    }
+}
+
+class MutateArrayNode {
+    arrayReference
+    value
+    constructor(arrayReference, value) {
+        this.arrayReference = arrayReference
+        this.value = value
+    }
+}
+
+class SizeComparisonNode {
+    operator
+    nodeA
+    nodeB
+    constructor(op, nodeA, nodeB) {
+        this.operator = op
         this.nodeA = nodeA
         this.nodeB = nodeB
     }
@@ -287,5 +325,9 @@ module.exports = {
     ConditionNode,
     CompareNode,
     AndNode,
-    ReturnNode
+    ReturnNode,
+    ArrayNode,
+    ArrayReferenceNode,
+    MutateArrayNode,
+    SizeComparisonNode
 }

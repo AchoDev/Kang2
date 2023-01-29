@@ -1,0 +1,91 @@
+
+
+var alphabet = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "z"]
+var currentCell = 0
+
+func newArray(len) -> var array{
+    array = []
+    var counter = 0
+    loop len {
+        array[counter] = 0
+        counter = counter + 1
+    }
+}
+
+var cellCount = 10
+var memory = newArray(cellCount)
+
+
+var isLooping = true
+
+func createGap(count) {
+    loop count {
+        log ""
+    }
+}
+
+var output = "output: "
+
+loop isLooping {
+
+    createGap(5)
+
+    var inputVar = ""
+
+    input ">> " -> inputVar
+
+    createGap(5)    
+
+    if inputVar == ">" && currentCell < (cellCount - 1){
+        currentCell = currentCell + 1
+    } elseif inputVar == "<" && currentCell > 0{
+        currentCell = currentCell - 1
+    }
+
+    var addition = 0
+    var currentValue = memory[currentCell]
+
+    if inputVar == "+" {
+        addition = 1
+    } elseif inputVar == "-" {
+        if currentValue > 0 {
+            addition = 1 - 2
+        }
+    } elseif inputVar == "." {
+         output = output + alphabet[currentValue]
+    }
+
+    memory[currentCell] = currentValue + addition
+
+    if inputVar == "exit" {
+        isLooping = false
+    }
+
+    log "memory:"
+
+    
+    var tempNum = 0
+    var cellIndicator = " "
+
+    var newmemory = memory
+
+    loop cellCount {
+
+        newmemory[tempNum] = " " + newmemory[tempNum]
+
+        if currentCell == tempNum {
+            cellIndicator = cellIndicator + " | "
+        } else {
+            cellIndicator = cellIndicator + " - "
+        }
+        tempNum = tempNum + 1
+    }
+
+    log " " + newmemory
+
+
+
+    log cellIndicator
+    log ""
+    log output
+}

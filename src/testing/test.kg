@@ -1,9 +1,0 @@
-var variable = "good greetus man"
-
-func name() -> var variable {
-    log "hello"
-
-    variable = "selom"
-}
-
-log name()

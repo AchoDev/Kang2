@@ -1,0 +1,10 @@
+var fibonacci = [0, 1, 1]
+var len = 10
+var counter = 3
+
+loop len {
+    fibonacci[counter] = fibonacci[counter - 2] + fibonacci[counter - 1]
+    counter = counter + 1
+}
+
+log "fibonacci sequence: " + fibonacci
