@@ -1,0 +1,18 @@
+
+var running = true
+var number = 7
+
+loop running {
+    var inputVar = ''
+
+    input 'guess the number ' -> inputVar
+
+    if(inputVar == number) {
+        log 'it was ' + number + '!'
+        running = false
+    } 
+
+    else {
+        log 'wrong.... it was not ' + inputVar
+    }
+}
