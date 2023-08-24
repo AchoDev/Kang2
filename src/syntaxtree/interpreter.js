@@ -141,7 +141,7 @@ class Interpreter {
         return this.open(node.nodeA, localTable) - this.open(node.nodeB, localTable)
     }
 
-    openMultiplyNode(node, prevSymbolTableList, localTable) {
+    openMultiplyNode(node, localTable) {
         return this.open(node.nodeA, localTable) * this.open(node.nodeB, localTable)
     }
 

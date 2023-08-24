@@ -5,6 +5,7 @@ const { Token } = require("../token.js")
 const settings = require("../settings/settings.js")
 const { SymbolTable, Variable } = require("../variable.js")
 const { isIn, COMPARISON_TYPE } = require("./lexer.js")
+const { type } = require("@tauri-apps/api/os.js")
 
 class Parser {
 
@@ -17,18 +18,18 @@ class Parser {
         this.advance()
     }
 
-    raiseUnderstandingError(error) {
-        console.log(`Type error: "${error}" was not understood`)
+    raiseDefinitionError(error) {
+        console.log('\x1b[31m', `"${error}" is undefined`)
         process.exit(1)
     }
 
     raiseError(error)  {
-        console.log(`${error}`)
+        console.log('\x1b[31m', `${error}`)
         process.exit(1)
     }
 
     raiseSyntaxError(syntax) {
-        console.log(`Syntax error: ${syntax} is missing`)
+        console.log('\x1b[31m', `Syntax error: ${syntax} is missing`)
     }
 
     advance() {
@@ -81,7 +82,7 @@ class Parser {
                 result = this.createFunc()
                 this.advance()
             } else if(this.currentToken.type == TokenType.IDENT) {
-                result = this.handleIdent()
+                result = this.handleStatementIdent()
                 this.advance()
             } else if(this.currentToken.type == TokenType.LOG) {
                 this.advance()
@@ -354,6 +355,15 @@ class Parser {
         while(this.currentToken != null && this.currentToken.type == TokenType.LINEBR) {
             this.advance()
         }
+    }
+
+    handleStatementIdent() {
+        const result = this.handleIdent()
+
+        if(typeof(result) == nodes.ReferenceNode) {
+            this.raiseDefinitionError(result.varName)
+        }
+        else return result
     }
 
     handleIdent() {
