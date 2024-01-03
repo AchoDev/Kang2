@@ -20,9 +20,9 @@ const rawdata = getText()
 const lexer = new cLexer(rawdata) 
 
 const tokens = lexer.createTokens()
-// console.log(tokens)
+console.log(tokens)
 
-const parser = new Parser(tokens)
+const parser = new Parser(tokens, rawdata)
 const tree = parser.parse()
 
 // console.log(tree)

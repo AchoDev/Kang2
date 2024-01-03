@@ -252,7 +252,8 @@ class Interpreter {
         const func = localTable.get(node.ident)
         
         if(!func) {
-            console.log(`${node.ident} does not exist`)
+            console.log(`Function "${node.ident}" does not exist`)
+            process.exit(1)
         }
 
         for(let i = 0; i < node.args.length; i++) {
@@ -311,8 +312,10 @@ class Interpreter {
         while(!localTable.mutate(node.ident, value)) {
             localTable = localTable.parent
             if(!localTable) {
-                console.log(`${node.ident} cannot be changed cuz undefined`)
-                return
+
+                console.log(node.ident)
+                console.log(`Can't mutate a variable named "${node.ident}", because it doesn't exist `)
+                process.exit(1)
             }
         }
         return true

@@ -32,6 +32,10 @@ class Lexer {
     text = ''
     index = 0
     input
+
+    currentLine = 0
+    currentCharIndex = 0
+
     constructor(inputText) {
         this.text = inputText.split('')
         this.input = inputText
@@ -43,6 +47,10 @@ class Lexer {
     advance() {
         this.currentChar = this.text[this.index]
         this.index++
+        this.currentCharIndex++
+
+        Token.currentChar = this.currentChar
+        Token.currentLine = this.currentLine
     }
 
     retreat() {
@@ -73,11 +81,14 @@ class Lexer {
             token = this.generateNumber()
         } else if(isIn(this.currentChar, LETTERS)) {
             token = this.handleString()
-        } else {
+        } else if(this.currentChar == undefined) {
+            
+        }
+        else {
             switch(this.currentChar) {
                 case '+':
                     this.advance()
-                    token = new Token(TokenType.PLUS)
+                    token = new Token(TokenType.PLUS, "+")
                     break
 
                 case '-':
@@ -86,22 +97,22 @@ class Lexer {
 
                 case '*':
                     this.advance()
-                    token = new Token(TokenType.MULTIPLY)
+                    token = new Token(TokenType.MULTIPLY, "*")
                     break
 
                 case '/':
                     this.advance()
-                    token = new Token(TokenType.DIVIDE)
+                    token = new Token(TokenType.DIVIDE, "/")
                     break
 
                 case '(':
                     this.advance()
-                    token = new Token(TokenType.LPAREN)
+                    token = new Token(TokenType.LPAREN, "(")
                     break
 
                 case ')':
                     this.advance()
-                    token = new Token(TokenType.RPAREN)
+                    token = new Token(TokenType.RPAREN, ")")
                     break
                 
                 case '=':
@@ -110,32 +121,37 @@ class Lexer {
                         token = new Token(TokenType.COMP, COMPARISON_TYPE.EQ)
                         this.advance()
                     }
-                    else token = new Token(TokenType.EQ)
+                    else token = new Token(TokenType.EQ, "=")
                     break
                 
                 case ',':
                     this.advance()
-                    token = new Token(TokenType.COMMA)
+                    token = new Token(TokenType.COMMA, ",")
                     break
                 
                 case '{':
                     this.advance()
-                    token = new Token(TokenType.LCURBR)
+                    token = new Token(TokenType.LCURBR, "{")
                     break
 
                 case '}':
                     this.advance()
-                    token = new Token(TokenType.RCURBR)
+                    token = new Token(TokenType.RCURBR, "}")
                     break
-
+                
+                case '\r':
+                    this.advance()
+                    this.currentCharIndex -= 1
                 case '\n':
                     this.advance()
-                    token = new Token(TokenType.LINEBR)
+                    token = new Token(TokenType.LINEBR, "linebr")
+                    this.currentCharIndex = 0
+                    Token.currentChar = this.currentCharIndex
                     break
                 
                 case '%':
                     this.advance()
-                    token = new Token(TokenType.MOD)
+                    token = new Token(TokenType.MOD, "%")
                     break
 
                 case '&':
@@ -145,16 +161,17 @@ class Lexer {
                         token = new Token(TokenType.COMP, COMPARISON_TYPE.AND)
                     }
                     else console.log("active references work in progress")
+                    process.exit(0)
                     break
 
                 case ']':
                     this.advance()
-                    token = new Token(TokenType.RSQRBR)
+                    token = new Token(TokenType.RSQRBR, "]")
                     break
 
                 case '[':
                     this.advance()
-                    token = new Token(TokenType.LSQRBR)
+                    token = new Token(TokenType.LSQRBR, "[")
                     break
 
                 case '<':
@@ -171,7 +188,7 @@ class Lexer {
                 
                 case "!":
                     this.advance()
-                    token = new Token(TokenType.NOT)
+                    token = new Token(TokenType.NOT, "!")
 
                     if(this.currentChar == "=") {
                         this.advance()
@@ -247,7 +264,7 @@ class Lexer {
                     break
                 }
                 // console.log(this.currentChar)
-                if(this.currentChar != "," && this.currentChar != "\n") {
+                if(this.currentChar != "," && this.currentChar != "\n" && this.currentChar != "\r" && this.currentChar != "\t") {
                     string += this.currentChar
                 } else {
                     break
@@ -262,7 +279,7 @@ class Lexer {
         // console.log("string: " + string)
 
         if(string == "var") {
-            result = new Token(TokenType.VARKEY)
+            result = new Token(TokenType.VARKEY, string)
         } 
         // else if(isInList(string, SymbolTable.table)) {
         //     result = new Token(TokenType.REF, string)
@@ -282,43 +299,43 @@ class Lexer {
         } else {
             switch(string) {
                 case 'func':
-                    result = new Token(TokenType.FUNCKEY)
+                    result = new Token(TokenType.FUNCKEY, string)
                     break
                 
                 case 'return':
-                    result = new Token(TokenType.RETURN)
+                    result = new Token(TokenType.RETURN, string)
                     break
                 
                 case 'log':
-                    result = new Token(TokenType.LOG)
+                    result = new Token(TokenType.LOG, string)
                     break
             
                 case 'loop':
-                    result = new Token(TokenType.LOOPKEY)
+                    result = new Token(TokenType.LOOPKEY, string)
                     break
 
                 case 'if':
-                    result = new Token(TokenType.CONDKEY)
+                    result = new Token(TokenType.CONDKEY, string)
                     break
 
                 case 'true':
-                    result = new Token(TokenType.TRUE)
+                    result = new Token(TokenType.TRUE, string)
                     break
 
                 case 'false':
-                    result = new Token(TokenType.FALSE)
+                    result = new Token(TokenType.FALSE, string)
                     break
 
                 case 'elseif':
-                    result = new Token(TokenType.ELSEIF)
+                    result = new Token(TokenType.ELSEIF, string)
                     break
                 
                 case 'else':
-                    result = new Token(TokenType.ELSE)
+                    result = new Token(TokenType.ELSE, string)
                     break
 
                 case 'input':
-                    result = new Token(TokenType.INPUT)
+                    result = new Token(TokenType.INPUT, string)
                     break
 
                 default:
@@ -335,11 +352,11 @@ class Lexer {
             settings.changeSetting(this.input)
             return 1
         } else if(this.currentChar == '>') {
-            result = new Token(TokenType.ARROW)
+            result = new Token(TokenType.ARROW, "->")
             this.advance()
         }
         else {
-            result = new Token(TokenType.MINUS)
+            result = new Token(TokenType.MINUS, "-")
         }
 
         return result

@@ -45,12 +45,20 @@ const TokenType = Object.freeze({
 
 class Token {
 
+    static currentLine = 0
+    static currentChar = 0
+
     type
     value
+    line
+    char
     
     constructor(tType, tValue) {
         this.type = tType
         this.value = tValue
+
+        this.line = Token.currentLine
+        this.char = Token.currentChar
     }
 
     repr = () => {

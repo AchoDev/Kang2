@@ -12,8 +12,14 @@ class Parser {
     tokens
     currentToken
 
-    constructor(lxTokens) {
+    text = []
+
+    constructor(lxTokens, rawText) {
         this.tokens = lxTokens
+        
+        // split the raw text into lines
+        this.text = rawText.split(/\r\n|\r|\n/)
+
         this.advance()
     }
 
@@ -23,7 +29,12 @@ class Parser {
     }
 
     raiseError(error)  {
-        console.log(`${error}`)
+        console.log('Syntax error on line ' + this.currentToken.line)
+        console.log(`${error}\n`)
+
+        console.log(this.text[this.currentToken.line])
+        console.log(this.text[this.currentToken.line].split("").map((char, index) => index == this.currentToken.char ? "~" : "^").join(""))
+
         process.exit(1)
     }
 
@@ -117,7 +128,7 @@ class Parser {
                 result = this.handleCondition()
             }
             else {
-                this.raiseError("this is not a statement")
+                this.raiseError("This is not a statement")
                 return null
             } 
             // else {
