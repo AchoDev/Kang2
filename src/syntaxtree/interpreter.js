@@ -1,18 +1,23 @@
 
 const { SubtractNode, MultiplyNode, DivideNode, MinusNode, StringNode, VarAssignNode, ReferenceNode, MutateNode, ArrayNode } = require("../nodes")
-const { SymbolTable, Variable, _Function } = require("../variable")
+const { SymbolTable, Variable, _Function, Struct } = require("../variable")
 const rls = require("readline-sync")
 const { COMPARISON_TYPE } = require("./lexer")
+const raiseError = require("./error_handler")
+
+var clone = require('clone');
+
+const structuredClone = obj => {
+  return clone(obj)
+};
 
 class Interpreter {
 
-    interpret(node) {
-        return this.open(node, new SymbolTable())
-    }
+    lines = []
 
-    raiseError(error) {
-        console.log(error)
-        process.exit(1)
+    interpret(node, lines) {
+        this.lines = lines
+        return this.open(node, new SymbolTable())
     }
 
     open(node, localTable) {
@@ -58,6 +63,9 @@ class Interpreter {
                 case 'FuncCreateNode':
                     result = this.createFunction(node, localTable)
                     break
+                case 'StructCreateNode':
+                    result = this.createStruct(node, localTable)
+                    break
                 case 'FuncCallNode':
                     result = this.callFunction(node, localTable)
                     break
@@ -100,8 +108,12 @@ class Interpreter {
                 case 'SizeComparisonNode':
                     result = this.compareSizes(node, localTable)
                     break
+                case 'PropertyNode':
+                    result = this.openProperty(node, localTable)
+                    break
                 default:
                     console.log('\x1b[31m', `CRITICAL NODE ERROR: [${node.constructor.name} cannot be interpreted], '\x1b[37m'`)
+                    process.exit(1)
             }
     
         } catch(err) {
@@ -109,15 +121,18 @@ class Interpreter {
             console.log(node, "<-- thats the node man thats not working")
             result = null
             console.log(err)
+            process.exit(1)
         }
 
         return result
 
     }
 
+    
+
     openBooleanNode = (node) => node.bool
 
-    openStatementSequence(node, localTable) {
+    openStatementSequence(node, localTable) {   
         // node.nodes.forEach(element => {
         //     this.open(element, localTable)
         // });
@@ -193,20 +208,29 @@ class Interpreter {
         return this.open(node.nodeA, localTable) && this.open(node.nodeB, localTable)
     }
 
-    structuredClone = val => {
-        return JSON.parse(JSON.stringify(val))
-    }
+    
+
+    // structuredClone = val => {
+    //     return JSON.parse(JSON.stringify(val))
+    // }
     
     openReferenceNode(node, localTable) {
         // console.log("ident: " + node.varName)
-        return this.structuredClone(this.searchSymbol(node.varName, localTable))
+        const value = this.searchSymbol(node.varName, localTable)
+
+        if(value == null) {
+            console.log(node.varName.length)
+            raiseError(`"${node.varName}" is not defined`, this.lines, node.line, node.char - node.varName.length - 1, node.char)
+        }
+
+        return structuredClone(value)
     }
 
 
     createVariable(node, localTable) {
         let value
         if(node.nodeB) {
-            value = this.structuredClone(this.open(node.nodeB, localTable))
+            value = structuredClone(this.open(node.nodeB, localTable))
         } 
 
         localTable.add(new Variable('any', node.nodeA, value))
@@ -228,6 +252,23 @@ class Interpreter {
         return array[this.open(node.index, localTable)]
     }
 
+    createStruct(node, localTable) {
+        const result = new Struct(node.identifier, node.statementSequence)
+        localTable.add(result)
+        return result
+    }
+
+    openProperty(node, localTable) {
+        const variable = this.searchSymbol(node.ident, localTable)
+        // const prop = variable.value.searchSymbol(node.property)
+
+        // if(prop == null) {
+        //     raiseError(`Property "${node.property}" of variable "${node.ident}" does not exist`, this.lines, node.line, node.char - node.property.length, node.char)
+        // }
+
+        return this.open(node.property, variable.value)
+    }
+
     createFunction(node, localTable) {
 
         let returns = node.returnNode
@@ -236,8 +277,6 @@ class Interpreter {
             node.statementNode.nodes.unshift(node.returnNode)
             returns = new ReferenceNode(returns.nodeA)
         }
-
-
 
         let result
         result = new _Function(returns, node.identifierNode, node.statementNode, node.argumentNode)
@@ -249,11 +288,13 @@ class Interpreter {
     callFunction(node, localTable) {
         // console.log("!!!!  " + JSON.stringify(SymbolTable.get(node.ident)))
         // console.log("!!!  " + SymbolTable.get(node.ident))
+        
+        // console.log(localTable)
+        
         const func = localTable.get(node.ident)
         
         if(!func) {
-            console.log(`Function "${node.ident}" does not exist`)
-            process.exit(1)
+            raiseError(`Function or Struct "${node.ident}" does not exist`, this.lines, node.line, node.char - node.ident.length, node.char)
         }
 
         for(let i = 0; i < node.args.length; i++) {
@@ -264,8 +305,20 @@ class Interpreter {
 
         table.setParent(localTable)
 
+        
+        
         let result = this.open(func.body, table)
+        
+        if(func instanceof Struct) {
+            result = new Variable(func.identifier, func.identifier, table)
 
+            // result = {}
+            
+            // func.body.forEach(element => {
+            //     result[element.identifier] = element.value
+            // })
+        }
+        
         if(result) {
             return result
         }
@@ -364,8 +417,7 @@ class Interpreter {
         if (result != null) return result
 
         // console.log("found nothing man  " + JSON.stringify(SymbolTable.table, null, 4))
-        console.log(_name + " is undefined")
-        process.exit(1)
+        return null
     }
 }
 

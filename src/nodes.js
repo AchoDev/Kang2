@@ -108,9 +108,13 @@ class IdentifierNode {
 
 class ReferenceNode {
     varName
+    line
+    char
 
-    constructor(ref) {
+    constructor(ref, line, char) {
         this.varName = ref
+        this.line = line
+        this.char = char
     }
 
     repr = () => {
@@ -162,6 +166,36 @@ class FuncCallNode {
     }
 
     repr = () => `ident: ${ident} args: ${args}`
+}
+
+class StructCreateNode {
+    identifier
+    statementSequence
+
+    constructor(identifier, statementSequence) {
+        this.identifier = identifier
+        this.statementSequence = statementSequence
+    }
+}
+
+// class StructCallCreatorNode {
+//     identifier
+//     args
+
+//     constructor(identifier, args) {
+//         this.identifier = identifier
+//         this.args = args
+//     }
+// }
+
+class PropertyNode {
+    ident
+    property
+
+    constructor(ident, property) {
+        this.ident = ident
+        this.property = property
+    }
 }
 
 class StatementSequence {
@@ -314,6 +348,8 @@ module.exports = {
     ReferenceNode,
     StringNode,
     FuncCreateNode,
+    StructCreateNode,
+    PropertyNode,
     StatementSequence,
     FuncCallNode,
     LogNode,

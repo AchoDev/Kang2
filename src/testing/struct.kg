@@ -1,0 +1,28 @@
+
+struct Player {
+  var name = "achomatico"
+
+  var interesting = true
+
+  func sayname() {
+    log name
+  }
+
+  func getname() {
+    return name
+  }
+}
+
+var player = Player()
+player.sayname()
+player.sayname()
+player.sayname()
+
+log ""
+
+var name = ""
+
+
+log "oh hello " + name + " my name is " + player.getname()
+
+

@@ -8,7 +8,7 @@ var seconds = new Date().getTime() / 1000;
 console.clear()
 
 console.log("\x1b[35m", "Kang-2 CONSOLE")
-console.log("\x1b[32m", "Made by Acho Dev")
+console.log("\x1b[32m", "Made by AchoDev")
 
 console.log("\x1b[37m", "")
 
@@ -20,7 +20,7 @@ const rawdata = getText()
 const lexer = new cLexer(rawdata) 
 
 const tokens = lexer.createTokens()
-console.log(tokens)
+// console.log(tokens)
 
 const parser = new Parser(tokens, rawdata)
 const tree = parser.parse()
@@ -28,7 +28,7 @@ const tree = parser.parse()
 // console.log(tree)
 
 const interpreter = new Interpreter()
-interpreter.interpret(tree)
+interpreter.interpret(tree, parser.text)
 
 console.log(`\nruntime: ${((new Date().getTime() / 1000) - seconds).toFixed(3)}s`)
 

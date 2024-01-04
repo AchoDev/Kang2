@@ -1,0 +1,6 @@
+
+struct Array {
+  get length {
+    return eval(self + ".length")
+  }
+}

@@ -1,6 +1,10 @@
 {
   "dependencies": {
+    "@ungap/structured-clone": "^1.2.0",
+    "clone": "^2.1.2",
+    "just-clone": "^6.2.0",
     "readline-sync": "^1.4.10",
+    "typescript": "^5.3.3",
     "yeoman-generator": "^5.6.1"
   }
 }

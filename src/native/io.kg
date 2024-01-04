@@ -1,0 +1,13 @@
+
+namespace io {
+  func print(*values) -> var value = "" {
+    var i = 0
+    loop values.length {
+      value += values[i] + " "
+    }
+  }
+
+  func input(question) -> var result {
+    input question -> result
+  }
+}

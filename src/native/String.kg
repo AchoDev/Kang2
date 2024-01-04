@@ -1,0 +1,28 @@
+
+struct String {
+  
+  get length() {
+    return eval(self + ".length")
+  }
+  
+  func split() {
+    return eval(
+      self + ".split()"
+    )
+  }
+
+  func charAt(index) {
+    return self.split()[index]
+  }
+
+  func toUpperCase() {
+    return eval(self + ".toUpperCase()")
+  }
+
+  static func from(*strings) {
+    var value = ""
+    loop strings.length {
+      
+    }
+  }
+}

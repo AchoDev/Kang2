@@ -102,4 +102,14 @@ class _Function {
     }
 }
 
-module.exports = {Variable, SymbolTable, _Function}
+class Struct {
+    identifier
+    body
+
+    constructor(identifier, body) {
+        this.identifier = identifier
+        this.body = body
+    }
+}
+
+module.exports = {Variable, SymbolTable, _Function, Struct}

@@ -5,6 +5,7 @@ const { Token } = require("../token.js")
 const settings = require("../settings/settings.js")
 const { SymbolTable, Variable } = require("../variable.js")
 const { isIn, COMPARISON_TYPE } = require("./lexer.js")
+const raiseError = require("./error_handler.js")
 
 class Parser {
 
@@ -21,25 +22,6 @@ class Parser {
         this.text = rawText.split(/\r\n|\r|\n/)
 
         this.advance()
-    }
-
-    raiseUnderstandingError(error) {
-        console.log(`Type error: "${error}" was not understood`)
-        process.exit(1)
-    }
-
-    raiseError(error)  {
-        console.log('Syntax error on line ' + this.currentToken.line)
-        console.log(`${error}\n`)
-
-        console.log(this.text[this.currentToken.line])
-        console.log(this.text[this.currentToken.line].split("").map((char, index) => index == this.currentToken.char ? "~" : "^").join(""))
-
-        process.exit(1)
-    }
-
-    raiseSyntaxError(syntax) {
-        console.log(`Syntax error: ${syntax} is missing`)
     }
 
     advance() {
@@ -92,7 +74,12 @@ class Parser {
                 result = this.createFunc()
                 this.advance()
             } else if(this.currentToken.type == TokenType.IDENT) {
+                const value = this.currentToken.value
                 result = this.handleIdent()
+
+                if(result instanceof nodes.ReferenceNode) {
+                    raiseError(`"${value}" is not a statement`, this.text, result.line, 0, result.char)
+                }
                 this.advance()
             } else if(this.currentToken.type == TokenType.LOG) {
                 this.advance()
@@ -126,9 +113,12 @@ class Parser {
                 result = this.handleLoop()
             } else if(this.currentToken.type == TokenType.CONDKEY) {
                 result = this.handleCondition()
+            } else if(this.currentToken.type == TokenType.STRUCTKEY) {
+                result = this.createStruct()
+                this.advance()
             }
             else {
-                this.raiseError("This is not a statement")
+                raiseError(`"${this.currentToken.value}" is not a statement`, this.text, this.currentToken.line, 0, this.currentToken.char)
                 return null
             } 
             // else {
@@ -258,6 +248,30 @@ class Parser {
         return result
     }
 
+    createStruct() {
+        const structLine = this.currentToken.line
+        const structEnd = this.currentToken.char
+
+        this.advance()
+
+        if(this.currentToken == null) {
+            raiseError("Unexpected struct end", this.text, structLine, 0, structEnd)
+        } else if(this.currentToken.type != TokenType.IDENT) {
+            raiseError(`"${this.currentToken.value}" is not a valid struct identifier`, this.text, this.currentToken.line, this.currentToken.char - this.currentToken.value.length, this.currentToken.char)
+        }
+
+        const structName = this.currentToken.value
+        this.advance()
+        
+        if(this.currentToken.type != TokenType.LCURBR) {
+            raiseError("Expected left curly bracket", this.text, this.currentToken.line, this.currentToken.char, this.currentToken.char)
+        }
+
+        this.advance()
+        
+        return new nodes.StructCreateNode(structName, this.statementSequence())
+    }
+
     createFunc() {
 
         let result // function as tree
@@ -369,6 +383,8 @@ class Parser {
 
     handleIdent() {
         const string = this.currentToken.value
+        const startChar = this.currentToken.char
+        const startLine = this.currentToken.line
         let result
 
         this.advance()
@@ -385,7 +401,6 @@ class Parser {
                         this.advance()
                     }
                 }
-
 
                 if(this.currentToken.type == TokenType.RPAREN) {
                     result = new nodes.FuncCallNode(string, args)
@@ -418,13 +433,18 @@ class Parser {
                 }
 
                 return result
+            } else if(this.currentToken.type == TokenType.DOT) {
+                this.advance()
+                const prop = this.handleIdent()
 
+                result = new nodes.PropertyNode(string, prop)
+
+                return result
             }
         }
 
-        result = new nodes.ReferenceNode(string)
+        result = new nodes.ReferenceNode(string, startLine, startChar)
         return result
-        
     }
 
     handleArray() {

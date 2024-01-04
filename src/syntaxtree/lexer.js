@@ -49,7 +49,7 @@ class Lexer {
         this.index++
         this.currentCharIndex++
 
-        Token.currentChar = this.currentChar
+        Token.currentChar = this.currentCharIndex
         Token.currentLine = this.currentLine
     }
 
@@ -146,6 +146,7 @@ class Lexer {
                     this.advance()
                     token = new Token(TokenType.LINEBR, "linebr")
                     this.currentCharIndex = 0
+                    this.currentLine++
                     Token.currentChar = this.currentCharIndex
                     break
                 
@@ -194,6 +195,11 @@ class Lexer {
                         this.advance()
                         token = new Token(TokenType.COMP, COMPARISON_TYPE.EQNOT)
                     }
+                    break
+
+                case ".":
+                    this.advance()
+                    token = new Token(TokenType.DOT, ".")
                     break
 
                 default:
@@ -264,7 +270,7 @@ class Lexer {
                     break
                 }
                 // console.log(this.currentChar)
-                if(this.currentChar != "," && this.currentChar != "\n" && this.currentChar != "\r" && this.currentChar != "\t") {
+                if(this.currentChar != "," && this.currentChar != "\n" && this.currentChar != "\r" && this.currentChar != "\t" && this.currentChar != ".") {
                     string += this.currentChar
                 } else {
                     break
@@ -336,6 +342,14 @@ class Lexer {
 
                 case 'input':
                     result = new Token(TokenType.INPUT, string)
+                    break
+
+                case 'struct':
+                    result = new Token(TokenType.STRUCTKEY, string)
+                    break
+                
+                case 'new':
+                    result = new Token(TokenType.NEW, string)
                     break
 
                 default:
