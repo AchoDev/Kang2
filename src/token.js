@@ -42,7 +42,12 @@ const TokenType = Object.freeze({
     EQNOT: 39,
     DOT: 40,
     STRUCTKEY: 41,
-    TOKEN: 42,
+    PLUSEQ: 42,
+    MINUSEQ: 43,
+    MULEQ: 44,
+    DIVEQ: 45,
+    INC: 46,
+    DEC: 47,
 })
 
 

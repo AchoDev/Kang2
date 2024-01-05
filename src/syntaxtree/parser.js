@@ -389,8 +389,10 @@ class Parser {
 
         this.advance()
         
-        if(this.currentToken != null) {
-            if (this.currentToken.type == TokenType.LPAREN) {
+        if(this.currentToken == null) return new nodes.ReferenceNode(string, startLine, startChar) 
+
+        switch(this.currentToken.type) {
+            case TokenType.LPAREN:
                 this.advance()
 
                 let args = []
@@ -408,11 +410,15 @@ class Parser {
                 } else {
                     this.raiseSyntaxError("right parenthesis")
                 }
-            } else if (this.currentToken.type == TokenType.EQ) {
+
+                break
+            
+            case TokenType.EQ:
                 this.advance()
                 result = new nodes.MutateNode(string, this.expr())
                 return result
-            } else if(this.currentToken.type == TokenType.LSQRBR) {
+
+            case TokenType.LSQRBR:
                 this.advance()
 
                 this.skipLineBreaks()
@@ -433,18 +439,74 @@ class Parser {
                 }
 
                 return result
-            } else if(this.currentToken.type == TokenType.DOT) {
+
+            case TokenType.DOT:
                 this.advance()
                 const prop = this.handleIdent()
 
                 result = new nodes.PropertyNode(string, prop)
 
                 return result
-            }
-        }
 
-        result = new nodes.ReferenceNode(string, startLine, startChar)
-        return result
+            case TokenType.PLUSEQ:
+                this.advance()
+                result = new nodes.MutateNode(
+                    string, 
+                    new nodes.AddNode(new nodes.ReferenceNode(string, startLine, startChar), this.expr())
+                )
+
+                this.advance()
+                return result
+
+            case TokenType.MINUSEQ:
+                this.advance()
+                result = new nodes.MutateNode(
+                    string, 
+                    new nodes.SubtractNode(new nodes.ReferenceNode(string, startLine, startChar), this.expr())
+                )
+                return result
+
+            case TokenType.MULEQ:
+                this.advance()
+                result = new nodes.MutateNode(
+                    string, 
+                    new nodes.MultiplyNode(new nodes.ReferenceNode(string, startLine, startChar), this.expr())
+                )
+                return result
+
+            case TokenType.DIVEQ:
+                this.advance()
+                result = new nodes.MutateNode(
+                    string, 
+                    new nodes.DivideNode(new nodes.ReferenceNode(string, startLine, startChar), this.expr())
+                )
+                return result
+
+            case TokenType.INC:
+                this.advance()
+                result = new nodes.MutateNode(
+                    string, 
+                    new nodes.AddNode(new nodes.ReferenceNode(string, startLine, startChar), new nodes.PlusNode(1))
+                )
+                return result
+            
+            case TokenType.DEC:
+                this.advance()
+                result = new nodes.MutateNode(
+                    string, 
+                    new nodes.SubtractNode(new nodes.ReferenceNode(string, startLine, startChar), new nodes.MinusNode(1))
+                )
+                return result
+
+            default:
+                raiseError(
+                `"${this.currentToken.value}" is not a valid statement`, 
+                this.text, 
+                this.currentToken.line, 
+                this.currentToken.char - this.currentToken.value.length, 
+                this.currentToken.char
+                )   
+        }
     }
 
     handleArray() {

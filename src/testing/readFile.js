@@ -5,7 +5,7 @@ function getFileText() {
         path = 'testing/test.kg'
         rawdata = fs.readFileSync(path, "utf-8");
     } catch{
-        path = 'src/testing/struct.kg'
+        path = 'src/testing/sugartest.kg'
         rawdata = fs.readFileSync(path, "utf-8");
     }
 

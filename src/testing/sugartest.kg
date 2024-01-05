@@ -1,0 +1,7 @@
+
+var test = 0
+
+test += 10
+test++
+
+log test

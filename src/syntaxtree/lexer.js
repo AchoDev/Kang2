@@ -88,6 +88,17 @@ class Lexer {
             switch(this.currentChar) {
                 case '+':
                     this.advance()
+
+                    if(this.currentChar == '=') {
+                        this.advance()
+                        token = new Token(TokenType.PLUSEQ, "+=")
+                        break
+                    } else if(this.currentChar == '+') {
+                        this.advance()
+                        token = new Token(TokenType.INC, "++")
+                        break
+                    }
+
                     token = new Token(TokenType.PLUS, "+")
                     break
 
@@ -97,11 +108,32 @@ class Lexer {
 
                 case '*':
                     this.advance()
+                    if(this.currentChar == '=') {
+                        this.advance()
+                        token = new Token(TokenType.MULEQ, "*=")
+                        break
+                    }
                     token = new Token(TokenType.MULTIPLY, "*")
                     break
 
                 case '/':
                     this.advance()
+
+                    if (this.currentChar == '/') {
+                        while (this.currentChar != '\n') {
+                            this.advance()
+                        }
+                        token = new Token(TokenType.LINEBR, "linebr")
+                        this.currentCharIndex = 0
+                        this.currentLine++
+                        Token.currentChar = this.currentCharIndex
+                        break
+                    } else if(this.currentChar == '=') {
+                        this.advance()
+                        token = new Token(TokenType.DIVEQ, "/=")
+                        break
+                    }
+
                     token = new Token(TokenType.DIVIDE, "/")
                     break
 
@@ -201,6 +233,8 @@ class Lexer {
                     this.advance()
                     token = new Token(TokenType.DOT, ".")
                     break
+
+                
 
                 default:
                     console.log(`character: ${this.currentChar} is undefined`)
@@ -367,6 +401,12 @@ class Lexer {
             return 1
         } else if(this.currentChar == '>') {
             result = new Token(TokenType.ARROW, "->")
+            this.advance()
+        } else if(this.currentChar == '=') {
+            result = new Token(TokenType.MINUSEQ, "-=")
+            this.advance()
+        } else if(this.currentChar == '-') {
+            result = new Token(TokenType.DEC, "--")
             this.advance()
         }
         else {
