@@ -116,8 +116,7 @@ class Parser {
             } else if(this.currentToken.type == TokenType.STRUCTKEY) {
                 result = this.createStruct()
                 this.advance()
-            }
-            else {
+            } else {
                 raiseError(`"${this.currentToken.value}" is not a statement`, this.text, this.currentToken.line, 0, this.currentToken.char)
                 return null
             } 
@@ -455,7 +454,7 @@ class Parser {
                     new nodes.AddNode(new nodes.ReferenceNode(string, startLine, startChar), this.expr())
                 )
 
-                this.advance()
+                // this.advance()
                 return result
 
             case TokenType.MINUSEQ:
@@ -488,24 +487,30 @@ class Parser {
                     string, 
                     new nodes.AddNode(new nodes.ReferenceNode(string, startLine, startChar), new nodes.PlusNode(1))
                 )
+
+                this.advance()
+
                 return result
             
             case TokenType.DEC:
                 this.advance()
                 result = new nodes.MutateNode(
                     string, 
-                    new nodes.SubtractNode(new nodes.ReferenceNode(string, startLine, startChar), new nodes.MinusNode(1))
+                    new nodes.SubtractNode(new nodes.ReferenceNode(string, startLine, startChar), new nodes.PlusNode(1))
                 )
                 return result
 
             default:
-                raiseError(
-                `"${this.currentToken.value}" is not a valid statement`, 
-                this.text, 
-                this.currentToken.line, 
-                this.currentToken.char - this.currentToken.value.length, 
-                this.currentToken.char
-                )   
+                // raiseError(
+                // `"${this.currentToken.value}" is not a valid statement`, 
+                // this.text, 
+                // this.currentToken.line, 
+                // this.currentToken.char - this.currentToken.value.length, 
+                // this.currentToken.char
+                // )
+                this.advance()
+                result = new nodes.ReferenceNode(string, startLine, startChar)
+                return result
         }
     }
 

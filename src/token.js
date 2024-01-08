@@ -48,6 +48,7 @@ const TokenType = Object.freeze({
     DIVEQ: 45,
     INC: 46,
     DEC: 47,
+    // NAMESPACE: 48,
 })
 
 

@@ -1,11 +1,14 @@
 const fs = require('fs');
 
 function getFileText() {
+
+    const name = 'namespace'
+        
     try {
-        path = 'testing/test.kg'
+        path = `testing/${name}.kg`
         rawdata = fs.readFileSync(path, "utf-8");
     } catch{
-        path = 'src/testing/sugartest.kg'
+        path = `src/testing/${name}.kg`
         rawdata = fs.readFileSync(path, "utf-8");
     }
 

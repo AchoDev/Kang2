@@ -2,7 +2,7 @@
 const WHITESPACE = ' '
 const DIGITS = '0123456789'
 const LETTERS = `öabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"'`
-const LETTERS_DIGITS = `abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789`
+const LETTERS_DIGITS = `abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-`
 const QUOTES = `"'`
 const BRACKETS = "(){}[]<>"
 
@@ -252,6 +252,7 @@ class Lexer {
 
         while(this.currentChar != null) {
             const token = this.getCurrentToken()
+            console.log(this.currentChar)
             if(token) tokens.push(token)
         }
             
@@ -282,7 +283,9 @@ class Lexer {
 
         let i = 0
 
-        while(this.currentChar != null && (isIn(this.currentChar, LETTERS_DIGITS) || this.currentChar != WHITESPACE)) {
+        // todo this is so messy i need to clean this shit up asap
+
+        while(this.currentChar != null && (isIn(this.currentChar, LETTERS_DIGITS) || isIn(this.currentChar, QUOTES))) {
             if(!isIn(this.currentChar, BRACKETS)) {
                 // if(isIn(this.currentChar, QUOTES)) console.log("hey ich habe keinen vater")
                 if(isIn(this.currentChar, QUOTES)) {
@@ -382,9 +385,9 @@ class Lexer {
                     result = new Token(TokenType.STRUCTKEY, string)
                     break
                 
-                case 'new':
-                    result = new Token(TokenType.NEW, string)
-                    break
+                // case 'namespace':
+                //     result = new Token(TokenType.NAMESPACE, string)
+                //     break
 
                 default:
                     result = new Token(TokenType.IDENT, string)

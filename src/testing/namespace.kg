@@ -1,0 +1,10 @@
+
+struct io {
+    func print(value) {
+        log value
+    }
+}
+
+input_output = io()
+
+input_output.print("test")
