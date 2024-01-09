@@ -15,11 +15,5 @@ loop 15 {
         print = true
     }
 
-    if print {
-        log ""
-        log num
-        log output
-    }
-
     num = num + 1
 }

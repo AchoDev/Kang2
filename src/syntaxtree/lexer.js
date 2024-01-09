@@ -377,12 +377,16 @@ class Lexer {
                     result = new Token(TokenType.ELSE, string)
                     break
 
-                case 'input':
+                case 'prompt':
                     result = new Token(TokenType.INPUT, string)
                     break
 
                 case 'struct':
                     result = new Token(TokenType.STRUCTKEY, string)
+                    break
+                
+                case 'static':
+                    result = new Token(TokenType.STATIC, string)
                     break
                 
                 // case 'namespace':

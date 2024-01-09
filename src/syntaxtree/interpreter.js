@@ -1,5 +1,5 @@
 
-const { SubtractNode, MultiplyNode, DivideNode, MinusNode, StringNode, VarAssignNode, ReferenceNode, MutateNode, ArrayNode } = require("../nodes")
+const { SubtractNode, MultiplyNode, DivideNode, MinusNode, StringNode, VarAssignNode, ReferenceNode, MutateNode, ArrayNode, StaticNode } = require("../nodes")
 const { SymbolTable, Variable, _Function, Struct } = require("../variable")
 const rls = require("readline-sync")
 const { COMPARISON_TYPE } = require("./lexer")
@@ -110,6 +110,8 @@ class Interpreter {
                     break
                 case 'PropertyNode':
                     result = this.openProperty(node, localTable)
+                    break
+                case 'StaticNode':
                     break
                 default:
                     console.log('\x1b[31m', `CRITICAL NODE ERROR: [${node.constructor.name} cannot be interpreted], '\x1b[37m'`)
@@ -231,6 +233,9 @@ class Interpreter {
         let value
         if(node.nodeB) {
             value = structuredClone(this.open(node.nodeB, localTable))
+            if(value instanceof Variable) {
+                value.value.parent = localTable
+            }
         } 
 
         localTable.add(new Variable('any', node.nodeA, value))
@@ -254,6 +259,11 @@ class Interpreter {
 
     createStruct(node, localTable) {
         const result = new Struct(node.identifier, node.statementSequence)
+        for(let element of node.statementSequence.nodes) { 
+            if(element instanceof StaticNode) {
+                result.staticTable.add(this.open(element, localTable))
+            }
+        }
         localTable.add(result)
         return result
     }
@@ -265,6 +275,10 @@ class Interpreter {
         // if(prop == null) {
         //     raiseError(`Property "${node.property}" of variable "${node.ident}" does not exist`, this.lines, node.line, node.char - node.property.length, node.char)
         // }
+
+        if(variable.value instanceof Struct) {
+            return this.open(node.property, variable.staticTable)
+        }
 
         return this.open(node.property, variable.value)
     }
@@ -291,10 +305,10 @@ class Interpreter {
         
         // console.log(localTable)
         
-        const func = localTable.get(node.ident)
+        const func = structuredClone(localTable.get(node.ident))
         
         if(!func) {
-            raiseError(`Function or Struct "${node.ident}" does not exist`, this.lines, node.line, node.char - node.ident.length, node.char)
+            raiseError(`Function or Struct "${node.ident}" is not defined`, this.lines, node.line, node.char - node.ident.length, node.char - 1)
         }
 
         for(let i = 0; i < node.args.length; i++) {
@@ -304,14 +318,11 @@ class Interpreter {
         const table = new SymbolTable()
 
         table.setParent(localTable)
-
-        
         
         let result = this.open(func.body, table)
         
         if(func instanceof Struct) {
             result = new Variable(func.identifier, func.identifier, table)
-
             // result = {}
             
             // func.body.forEach(element => {
@@ -322,7 +333,11 @@ class Interpreter {
         if(result) {
             return result
         }
-        if(func.returns) return this.open(func.returns, table)
+
+        let returns
+        if(func.returns) returns = this.open(func.returns, table)
+
+
     }
 
     loop(node, localTable) {
@@ -379,9 +394,10 @@ class Interpreter {
     }
 
     getInput(node, localTable) {
-        const input = rls.question(node.questionNode)
+        const input = rls.question(this.open(node.questionNode, localTable))
         // const input = "here have me some absolutely beautiful input mate"
 
+        if(node.outputNode == null) return input
         this.mutateVariable({"ident": node.outputNode.varName, "value": new StringNode(input)}, localTable)
         return true
     }
@@ -407,7 +423,13 @@ class Interpreter {
 
         while(table) {
             table.table.forEach(variable => {
-                if(_name == variable.identifier) {
+                if(_name === variable.identifier) {
+
+                    if(variable instanceof Struct) {
+                        result = variable.staticTable
+                        return
+                    }
+
                     result = variable.value
                 }
             })

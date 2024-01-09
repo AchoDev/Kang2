@@ -1,10 +1,23 @@
 
 struct io {
-    func print(value) {
+    static func print(value) {
         log value
+    }
+
+
+    static func input(question) {
+        var result = ""
+        prompt question -> result
+        return result
     }
 }
 
 var input_output = io()
 
-input_output.print("test")
+io.print("test")
+
+var res = input_output.input("whats your name? ")
+
+io.print(res)
+
+io.input("aa ")

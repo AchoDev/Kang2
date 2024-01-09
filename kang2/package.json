@@ -6,7 +6,7 @@
   },
   "name": "kang2",
   "displayName": "Kang2",
-  "description": "Language",
+  "description": "Support for the Kang2 programming language",
   "icon": "icons/icon.png",
   "iconDefinitions": {
     "_file_kg": {
@@ -16,7 +16,7 @@
   "fileExtensions": {
     "kg": "_file_kg"
   },
-  "version": "0.1.1",
+  "version": "0.1.2",
   "engines": {
     "vscode": "^1.74.0"
   },

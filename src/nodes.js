@@ -159,10 +159,14 @@ class FuncCreateNode {
 class FuncCallNode {
     ident
     args
+    line
+    char
 
-    constructor(identifier, argument) {
+    constructor(identifier, argument, line, char) {
         this.ident = identifier
         this.args = argument
+        this.line = line
+        this.char = char
     }
 
     repr = () => `ident: ${ident} args: ${args}`
@@ -336,6 +340,13 @@ class SizeComparisonNode {
     }
 }
 
+class StaticNode {
+    node
+    constructor(node) {
+        this.node = node
+    }
+}
+
 module.exports = {
     PlusNode, 
     MinusNode, 
@@ -365,5 +376,6 @@ module.exports = {
     ArrayNode,
     ArrayReferenceNode,
     MutateArrayNode,
-    SizeComparisonNode
+    SizeComparisonNode,
+    StaticNode,
 }

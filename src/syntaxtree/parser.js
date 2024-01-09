@@ -96,14 +96,18 @@ class Parser {
                 let question
 
                 if(this.currentToken.type == TokenType.STRING) {
-                    question = this.currentToken.value
-                    this.advance()
+                    question = new nodes.StringNode(this.currentToken.value)
+                } else {
+                    question = new nodes.ReferenceNode(this.currentToken.value)
                 }
+                this.advance()
 
                 if(this.currentToken.type == TokenType.ARROW) {
                     this.advance()
                     result = new nodes.InputNode(this.factor(), question)
-                    this.advance()
+                    // this.advance()
+                } else {
+                    result = new nodes.InputNode(null, question)
                 }
 
                 this.advance()
@@ -115,7 +119,17 @@ class Parser {
             } else if(this.currentToken.type == TokenType.STRUCTKEY) {
                 result = this.createStruct()
                 this.advance()
-            } else {
+            } else if(this.currentToken.type == TokenType.STATIC) {
+                this.advance()
+                const line = this.currentToken.line
+                const char = this.currentToken.char
+                const value = this.currentToken.value
+                result = new nodes.StaticNode(this.statement())
+                if(!(result.node instanceof nodes.VarAssignNode) && !(result.node instanceof nodes.FuncCreateNode)) {
+                    raiseError(`"${value}" is not a valid static statement`, this.text, line, char - value.length, char - 1)
+                }
+            } 
+            else {
                 raiseError(`"${this.currentToken.value}" is not a statement`, this.text, this.currentToken.line, 0, this.currentToken.char)
                 return null
             } 
@@ -403,7 +417,7 @@ class Parser {
                 }
 
                 if(this.currentToken.type == TokenType.RPAREN) {
-                    result = new nodes.FuncCallNode(string, args)
+                    result = new nodes.FuncCallNode(string, args, startLine, startChar)
                     return result
                 } else {
                     this.raiseSyntaxError("right parenthesis")
@@ -507,7 +521,7 @@ class Parser {
                 // this.currentToken.char - this.currentToken.value.length, 
                 // this.currentToken.char
                 // )
-                this.advance()
+                // this.advance()
                 result = new nodes.ReferenceNode(string, startLine, startChar)
                 return result
         }

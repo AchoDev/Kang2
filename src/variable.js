@@ -105,10 +105,12 @@ class _Function {
 class Struct {
     identifier
     body
+    staticTable
 
     constructor(identifier, body) {
         this.identifier = identifier
         this.body = body
+        this.staticTable = new SymbolTable()
     }
 }
 
