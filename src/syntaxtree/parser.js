@@ -84,7 +84,6 @@ class Parser {
             } else if(this.currentToken.type == TokenType.LOG) {
                 this.advance()
                 result = new nodes.LogNode(this.expr())
-                this.advance()
 
             } else if(this.currentToken.type == TokenType.RETURN) {
                 this.advance()

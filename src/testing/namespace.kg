@@ -5,6 +5,6 @@ struct io {
     }
 }
 
-input_output = io()
+var input_output = io()
 
 input_output.print("test")

@@ -120,7 +120,7 @@ class Lexer {
                     this.advance()
 
                     if (this.currentChar == '/') {
-                        while (this.currentChar != '\n') {
+                        while ( !(this.currentChar == '\n' || this.currentChar == null) ) {
                             this.advance()
                         }
                         token = new Token(TokenType.LINEBR, "linebr")
@@ -252,7 +252,7 @@ class Lexer {
 
         while(this.currentChar != null) {
             const token = this.getCurrentToken()
-            console.log(this.currentChar)
+            // console.log(this.currentChar)
             if(token) tokens.push(token)
         }
             
