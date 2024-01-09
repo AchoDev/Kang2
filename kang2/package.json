@@ -1,16 +1,22 @@
 {
+  "publisher": "AchoDev",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AchoDev/Kang2/tree/main/kang2"
+  },
   "name": "kang2",
   "displayName": "Kang2",
   "description": "Language",
+  "icon": "icons/icon.png",
   "iconDefinitions": {
     "_file_kg": {
-        "iconPath": "./kg-icon.svg"
+      "iconPath": "./kg-icon.svg"
     }
   },
   "fileExtensions": {
-      "kg": "_file_kg"
+    "kg": "_file_kg"
   },
-  "version": "1.2.0",
+  "version": "0.1.1",
   "engines": {
     "vscode": "^1.74.0"
   },
@@ -18,20 +24,29 @@
     "Programming Languages"
   ],
   "contributes": {
-    "languages": [{
-      "id": "kang2",
-      "aliases": ["Kang2", "kang2"],
-      "extensions": [".kg"],
-      "configuration": "./language-configuration.json",
-      "icon": {
-        "light": "./icons/icon.svg",
-        "dark": "./icons/icon.svg"
+    "languages": [
+      {
+        "id": "kang2",
+        "aliases": [
+          "Kang2",
+          "kang2"
+        ],
+        "extensions": [
+          ".kg"
+        ],
+        "configuration": "./language-configuration.json",
+        "icon": {
+          "light": "./icons/icon.png",
+          "dark": "./icons/icon.png"
+        }
       }
-    }],
-    "grammars": [{
-      "language": "kang2",
-      "scopeName": "source.kang2",
-      "path": "./syntaxes/kang2.tmLanguage.json"
-    }]
+    ],
+    "grammars": [
+      {
+        "language": "kang2",
+        "scopeName": "source.kang2",
+        "path": "./syntaxes/kang2.tmLanguage.json"
+      }
+    ]
   }
 }
