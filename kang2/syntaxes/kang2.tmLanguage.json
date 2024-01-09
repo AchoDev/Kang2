@@ -1,32 +1,139 @@
+
 {
+	"scopeName": "source.kang2",
 	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
 	"name": "Kang2",
 	"patterns": [
 		{
-			"include": "#keywords"
+			"include": "#strings"
 		},
 		{
-			"include": "#strings"
+			"include": "#variables"
+		},
+		{
+			"include": "#structs"
+		},
+		{
+			"include": "#functions"
+		},
+		{
+			"include": "#loops"
+		},
+		{
+			"include": "#conditionals"
+		},
+		{
+			"include": "#keywords"
 		}
 	],
 	"repository": {
-		"keywords": {
-			"patterns": [{
-				"name": "keyword.control.kang2",
-				"match": "\\b(if|while|loop|return)\\b"
-			}]
-		},
 		"strings": {
-			"name": "string.quoted.double.kang2",
-			"begin": "\"",
-			"end": "\"",
 			"patterns": [
 				{
-					"name": "constant.character.escape.kang2",
-					"match": "\\\\."
+					"name": "string.quoted.double",
+					"begin": "\"",
+					"end": "\"",
+					"patterns": [
+						{
+							"name": "constant.character.escape",
+							"match": "\\\\."
+						}
+					]
+				}
+			]
+		},
+		"variables": {
+			
+			"patterns": [
+				{
+					"match": "\\bvar\\b",
+					"name": "keyword.declaration"
+				},
+				{
+					"match": "\\b\\w+\\b(?=\\s*=)",
+					"name": "variable.name"
+				},
+				{
+					"match": "\\b\\w+\\b(?=\\s*\\+)",
+					"name": "variable.name"
+				}
+			]
+		},
+		"structs": {
+			"patterns": [
+				{
+					"match": "\\bstruct\\b",
+					"name": "keyword.declaration"
+				},
+				{
+					"match": "\\b\\w+\\b(?=\\s*\\{)",
+					"name": "entity.name.type"
+				},
+				{
+					"match": "\\b\\w+\\b(?=\\s*:\\s*\\w+)",
+					"name": "variable.other.member"
+				},
+				{
+					"match": "\\bfunc\\b",
+					"name": "keyword.declaration"
+				},
+				{
+					"match": "\\b\\w+\\b(?=\\s*\\()",
+					"name": "entity.name.function"
+				}
+			]
+		},
+		"functions": {
+			"patterns": [
+				{
+					"match": "\\bfunc\\b",
+					"name": "keyword.declaration"
+				},
+				{
+					"match": "\\b\\w+\\b(?=\\s*\\()",
+					"name": "entity.name.function"
+				},
+				{
+					"match": "\\bprint\\b",
+					"name": "support.function"
+				},
+				{
+					"match": "\\binput\\b",
+					"name": "support.function"
+				}
+			]
+		},
+		"loops": {
+			"patterns": [
+				{
+					"match": "\\bloop\\b",
+					"name": "keyword.control"
+				},
+				{
+					"match": "\\b\\d+\\b(?=\\s*\\{)",
+					"name": "constant.numeric"
+				}
+			]
+		},
+		"conditionals": {
+			"patterns": [
+				{
+					"match": "\\bif\\b",
+					"name": "keyword.control"
+				},
+				{
+					"match": "\\belse\\b",
+					"name": "keyword.control"
+				}
+			]
+		},
+		"keywords": {
+			"patterns": [
+				{
+					"name": "keyword.control",
+					"match": "\\b(return|true|false|null)\\b"
 				}
 			]
 		}
-	},
-	"scopeName": "source.kang2"
+	}
 }

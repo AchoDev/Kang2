@@ -1,0 +1,32 @@
+
+
+var name = "Joe"
+var height = 74
+
+var full_name = name + "Smith"
+
+print(full_name)
+
+struct Person {
+	var name: String
+	var height: Int
+
+	func sayHello() {
+		print("Hello, my name is " + name)
+	}
+}
+
+var person = Person("Joe", 74)
+person.sayHello()
+
+var input_name = input("what's your name? ")
+
+loop 5 {
+	print(input_name)
+}
+
+if(input_name == "Joe") {
+	print("Hello Joe")
+} else {
+	print("Hello " + input_name)
+}

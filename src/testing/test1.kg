@@ -1,0 +1,17 @@
+func name() {
+    return "test"
+}
+
+var name = "test"
+
+struct test {
+    name = "test"
+
+    func sayName() {
+        print(name)
+    }
+}
+
+var test = test()
+
+test.sayName()

@@ -2,7 +2,15 @@
   "name": "kang2",
   "displayName": "Kang2",
   "description": "Language",
-  "version": "0.0.1",
+  "iconDefinitions": {
+    "_file_kg": {
+        "iconPath": "./kg-icon.svg"
+    }
+  },
+  "fileExtensions": {
+      "kg": "_file_kg"
+  },
+  "version": "1.2.0",
   "engines": {
     "vscode": "^1.74.0"
   },
@@ -14,7 +22,11 @@
       "id": "kang2",
       "aliases": ["Kang2", "kang2"],
       "extensions": [".kg"],
-      "configuration": "./language-configuration.json"
+      "configuration": "./language-configuration.json",
+      "icon": {
+        "light": "./icons/icon.svg",
+        "dark": "./icons/icon.svg"
+      }
     }],
     "grammars": [{
       "language": "kang2",

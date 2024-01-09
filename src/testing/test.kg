@@ -5,4 +5,4 @@ func test() {
   return 2
 }
 
-log 2 + test()
+print(2 + test())
