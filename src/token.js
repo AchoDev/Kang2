@@ -49,6 +49,7 @@ const TokenType = Object.freeze({
     INC: 46,
     DEC: 47,
     STATIC: 48,
+    IMPORT: 49,
 })
 
 

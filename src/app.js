@@ -1,7 +1,9 @@
 const Interpreter = require('./syntaxtree/interpreter.js')
 const Parser = require('./syntaxtree/parser.js')
 const { SymbolTable } = require('./variable.js')
-const getText = require('./testing/readFile.js').getFileText
+// const getText = require('./testing/readFile.js').getFileText
+
+const fs = require('fs');
 
 var seconds = new Date().getTime() / 1000;
 
@@ -14,21 +16,48 @@ console.log("\x1b[37m", "")
 
 cLexer = require('./syntaxtree/lexer.js').Lexer
 
-const rawdata = getText()
+// console.log(process.cwd())
+console.log(process.cwd() + "/" + process.argv[2])
+const basepath = process.cwd() + "/" + process.argv[2].split("/").slice(0, -1).join("/")
 
-// console.log(rawdata)
-const lexer = new cLexer(rawdata) 
+const modules = {}
 
-const tokens = lexer.createTokens()
-// console.log(tokens)
+function loadModule(path) {
 
-const parser = new Parser(tokens, rawdata)
-const tree = parser.parse()
+    if(modules[path] != undefined) return
 
-// console.log(tree)
+    modules[path] = {
+        loaded: false,
+        tree: null,
+        text: null,
+        importedModules: [],
+    }
 
-const interpreter = new Interpreter()
-interpreter.interpret(tree, parser.text)
+    const rawdata = fs.readFileSync(basepath + "/" + path, "utf-8");
+
+    modules[path].text = rawdata
+
+    // console.log(rawdata)
+    const lexer = new cLexer(rawdata)
+
+    const tokens = lexer.createTokens()
+    // console.log(tokens)
+
+    // console.log(tree)
+    const parser = new Parser(tokens, rawdata)
+    parser.findModules().forEach(element => {
+        loadModule(element)
+    });
+
+    const tree = parser.parse()
+    const interpreter = new Interpreter()
+    interpreter.interpret(tree, parser.text)
+}
+
+
+
+
+
 
 console.log(`\nruntime: ${((new Date().getTime() / 1000) - seconds).toFixed(3)}s`)
 

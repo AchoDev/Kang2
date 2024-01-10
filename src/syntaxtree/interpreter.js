@@ -221,7 +221,7 @@ class Interpreter {
         const value = this.searchSymbol(node.varName, localTable)
 
         if(value == null) {
-            console.log(node.varName.length)
+            // console.log(node.varName.length)
             raiseError(`"${node.varName}" is not defined`, this.lines, node.line, node.char - node.varName.length - 1, node.char)
         }
 
@@ -259,9 +259,10 @@ class Interpreter {
 
     createStruct(node, localTable) {
         const result = new Struct(node.identifier, node.statementSequence)
+        result.staticTable.setParent(localTable)
         for(let element of node.statementSequence.nodes) { 
             if(element instanceof StaticNode) {
-                result.staticTable.add(this.open(element, localTable))
+                result.staticTable.add(this.open(element.node, result.staticTable))
             }
         }
         localTable.add(result)
@@ -276,7 +277,7 @@ class Interpreter {
         //     raiseError(`Property "${node.property}" of variable "${node.ident}" does not exist`, this.lines, node.line, node.char - node.property.length, node.char)
         // }
 
-        if(variable.value instanceof Struct) {
+        if(variable instanceof Struct) {
             return this.open(node.property, variable.staticTable)
         }
 
@@ -426,7 +427,7 @@ class Interpreter {
                 if(_name === variable.identifier) {
 
                     if(variable instanceof Struct) {
-                        result = variable.staticTable
+                        result = variable
                         return
                     }
 

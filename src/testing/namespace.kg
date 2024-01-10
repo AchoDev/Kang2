@@ -4,7 +4,6 @@ struct io {
         log value
     }
 
-
     static func input(question) {
         var result = ""
         prompt question -> result
@@ -12,12 +11,10 @@ struct io {
     }
 }
 
-var input_output = io()
-
 io.print("test")
 
-var res = input_output.input("whats your name? ")
+var res = io.input("whats your name? ")
 
-io.print(res)
+io.print("hello, " + res + ":)")
 
-io.input("aa ")
+io.input("press enter to exit")

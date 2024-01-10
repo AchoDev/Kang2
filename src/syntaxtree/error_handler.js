@@ -1,6 +1,6 @@
 
 function raiseError(error, lines, line, startchar, endchar)  {
-  console.log('Syntax error on line ' + (line + 1))
+  console.log('\nSyntax error on line ' + (line + 1))
   console.log(`${error}\n`)
 
   console.log(line + 1, " | ", lines[line])

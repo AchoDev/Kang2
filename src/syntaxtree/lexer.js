@@ -125,7 +125,6 @@ class Lexer {
                         }
                         token = new Token(TokenType.LINEBR, "linebr")
                         this.currentCharIndex = 0
-                        this.currentLine++
                         Token.currentChar = this.currentCharIndex
                         break
                     } else if(this.currentChar == '=') {
@@ -387,6 +386,10 @@ class Lexer {
                 
                 case 'static':
                     result = new Token(TokenType.STATIC, string)
+                    break
+
+                case 'import':
+                    result = new Token(TokenType.IMPORT, string)
                     break
                 
                 // case 'namespace':

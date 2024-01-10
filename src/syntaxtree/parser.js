@@ -29,6 +29,23 @@ class Parser {
         this.index++
     }
 
+    findModules() {
+        let result = []
+
+        while(this.currentToken == TokenType.IMPORT) { 
+            this.advance()
+            if(this.currentToken.type != TokenType.IDENT) {
+                raiseError(`"${this.currentToken.value}" is not a valid module path`, this.text, this.currentToken.line, this.currentToken.char - this.currentToken.value.length, this.currentToken.char)
+            }
+
+            result.push(this.currentToken.value)
+            this.advance()
+            this.advance()
+        }
+
+        return result
+    }
+
     parse() {
         return this.statementSequence()
     }
