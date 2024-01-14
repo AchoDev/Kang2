@@ -32,13 +32,22 @@ class Parser {
     findModules() {
         let result = []
 
-        while(this.currentToken == TokenType.IMPORT) { 
+        while(this.currentToken.type == TokenType.IMPORT || this.currentToken.type == TokenType.LINEBR) {
+
+            if(this.currentToken.type == TokenType.LINEBR) {
+                this.advance()
+                continue
+            }
+
             this.advance()
             if(this.currentToken.type != TokenType.IDENT) {
                 raiseError(`"${this.currentToken.value}" is not a valid module path`, this.text, this.currentToken.line, this.currentToken.char - this.currentToken.value.length, this.currentToken.char)
             }
 
-            result.push(this.currentToken.value)
+            result.push({
+                ident: this.currentToken.value,
+                line: this.currentToken.line,
+            })
             this.advance()
             this.advance()
         }
@@ -145,7 +154,9 @@ class Parser {
                 if(!(result.node instanceof nodes.VarAssignNode) && !(result.node instanceof nodes.FuncCreateNode)) {
                     raiseError(`"${value}" is not a valid static statement`, this.text, line, char - value.length, char - 1)
                 }
-            } 
+            } else if(this.currentToken.type == TokenType.IMPORT) {
+                raiseError("Unexpected import", this.text, this.currentToken.line, this.currentToken.char, this.currentToken.char)
+            }
             else {
                 raiseError(`"${this.currentToken.value}" is not a statement`, this.text, this.currentToken.line, 0, this.currentToken.char)
                 return null
@@ -261,6 +272,8 @@ class Parser {
         let result
         this.advance()
         const ident = this.currentToken.value
+        const line = this.currentToken.line
+        const char = this.currentToken.char
         this.advance()
 
         let value
@@ -271,7 +284,7 @@ class Parser {
             this.advance()
         }
 
-        result = new nodes.VarAssignNode(ident, value)
+        result = new nodes.VarAssignNode(ident, value, line, char)
         
 
         return result
@@ -473,7 +486,7 @@ class Parser {
                 this.advance()
                 const prop = this.handleIdent()
 
-                result = new nodes.PropertyNode(string, prop)
+                result = new nodes.PropertyNode(string, prop, startLine, startChar)
 
                 return result
 

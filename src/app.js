@@ -1,3 +1,4 @@
+const raiseError = require('./syntaxtree/error_handler.js');
 const Interpreter = require('./syntaxtree/interpreter.js')
 const Parser = require('./syntaxtree/parser.js')
 const { SymbolTable } = require('./variable.js')
@@ -17,8 +18,9 @@ console.log("\x1b[37m", "")
 cLexer = require('./syntaxtree/lexer.js').Lexer
 
 // console.log(process.cwd())
-console.log(process.cwd() + "/" + process.argv[2])
+// console.log(process.cwd() + "/" + process.argv[2])
 const basepath = process.cwd() + "/" + process.argv[2].split("/").slice(0, -1).join("/")
+const basemodule = process.argv[2].split("/").slice(-1)[0].split(".")[0]
 
 const modules = {}
 
@@ -27,13 +29,19 @@ function loadModule(path) {
     if(modules[path] != undefined) return
 
     modules[path] = {
+        name: path,
         loaded: false,
-        tree: null,
+        table: null,
         text: null,
         importedModules: [],
     }
 
-    const rawdata = fs.readFileSync(basepath + "/" + path, "utf-8");
+    let rawdata
+    try {
+        rawdata = fs.readFileSync(basepath + "/" + path + ".kg", "utf-8");
+    } catch(e) {
+        return false
+    }
 
     modules[path].text = rawdata
 
@@ -46,17 +54,20 @@ function loadModule(path) {
     // console.log(tree)
     const parser = new Parser(tokens, rawdata)
     parser.findModules().forEach(element => {
-        loadModule(element)
+        const success = loadModule(element.ident)
+        if(!success) raiseError(`Module "${element.ident}" not found`, parser.text, element.line, 0, parser.text[element.line].length)
+        modules[path].importedModules.push(modules[element.ident])
     });
 
     const tree = parser.parse()
     const interpreter = new Interpreter()
-    interpreter.interpret(tree, parser.text)
+    modules[path].table = interpreter.interpret(tree, parser.text, modules[path].importedModules)
+    modules[path].loaded = true
+    return path
 }
 
 
-
-
+loadModule(basemodule)
 
 
 console.log(`\nruntime: ${((new Date().getTime() / 1000) - seconds).toFixed(3)}s`)

@@ -83,10 +83,14 @@ class DivideNode {
 class VarAssignNode {
     nodeA
     nodeB
+    line
+    char
     
-    constructor(crA, crB) {
+    constructor(crA, crB, line, char) {
         this.nodeA = crA
         this.nodeB = crB
+        this.line = line
+        this.char = char
     }
 
     repr = () => {
@@ -144,11 +148,17 @@ class FuncCreateNode {
     argumentNode = []
     identifierNode
 
-    constructor(returnNode, statementNode, argumentNode, identifierNode) {
+    line
+    char
+
+    constructor(returnNode, statementNode, argumentNode, identifierNode, line, char) {
         this.returnNode = returnNode
         this.statementNode = statementNode
         this.argumentNode = argumentNode
         this.identifierNode = identifierNode
+
+        this.line = line
+        this.char = char
     }
 
     repr = () => {
@@ -176,9 +186,15 @@ class StructCreateNode {
     identifier
     statementSequence
 
+    line
+    char
+
     constructor(identifier, statementSequence) {
         this.identifier = identifier
         this.statementSequence = statementSequence
+
+        this.line
+        this.char
     }
 }
 
@@ -195,10 +211,14 @@ class StructCreateNode {
 class PropertyNode {
     ident
     property
+    line
+    char
 
-    constructor(ident, property) {
+    constructor(ident, property, line, char) {
         this.ident = ident
         this.property = property
+        this.line = line
+        this.char = char
     }
 }
 

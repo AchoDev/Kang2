@@ -15,9 +15,12 @@ class Interpreter {
 
     lines = []
 
-    interpret(node, lines) {
+    interpret(node, lines, importedModules) {
         this.lines = lines
-        return this.open(node, new SymbolTable())
+        this.importedModules = importedModules
+        const table = new SymbolTable()
+        this.open(node, table)
+        return table
     }
 
     open(node, localTable) {
@@ -218,7 +221,7 @@ class Interpreter {
     
     openReferenceNode(node, localTable) {
         // console.log("ident: " + node.varName)
-        const value = this.searchSymbol(node.varName, localTable)
+        const value = this.searchSymbol(node.varName, localTable, node.line, node.char)
 
         if(value == null) {
             // console.log(node.varName.length)
@@ -231,12 +234,16 @@ class Interpreter {
 
     createVariable(node, localTable) {
         let value
+        
+        if(localTable.get(node.nodeA) != null) { 
+            raiseError(`Variable "${node.nodeA}" is already defined`, this.lines, node.line, node.char - node.nodeA.length, node.char - 1)
+        }
         if(node.nodeB) {
             value = structuredClone(this.open(node.nodeB, localTable))
             if(value instanceof Variable) {
                 value.value.parent = localTable
             }
-        } 
+        }
 
         localTable.add(new Variable('any', node.nodeA, value))
     }
@@ -252,7 +259,7 @@ class Interpreter {
     }
 
     getFromArray(node, localTable) {
-        const array = this.searchSymbol(node.ident, localTable)
+        const array = this.searchSymbol(node.ident, localTable, node.line, node.char)
 
         return array[this.open(node.index, localTable)]
     }
@@ -270,12 +277,16 @@ class Interpreter {
     }
 
     openProperty(node, localTable) {
-        const variable = this.searchSymbol(node.ident, localTable)
+        const variable = this.searchSymbol(node.ident, localTable, node.line, node.char)
         // const prop = variable.value.searchSymbol(node.property)
 
         // if(prop == null) {
         //     raiseError(`Property "${node.property}" of variable "${node.ident}" does not exist`, this.lines, node.line, node.char - node.property.length, node.char)
         // }
+
+        if(variable == null) {
+            raiseError(`Cannot access property of nonexistent variable "${node.ident}" `, this.lines, node.line, node.char - node.ident.length, node.char)
+        }
 
         if(variable instanceof Struct) {
             return this.open(node.property, variable.staticTable)
@@ -368,7 +379,7 @@ class Interpreter {
         const newValue = this.open(node.value, localTable)
         const index = this.open(node.arrayReference.index, localTable)
 
-        let updatedArray = this.searchSymbol(ident, localTable)
+        let updatedArray = this.searchSymbol(ident, localTable, node.line, node.char)
         updatedArray[index] = newValue
             
         return this.mutateVariable(new MutateNode(ident, updatedArray, true), localTable, true)
@@ -411,7 +422,7 @@ class Interpreter {
         }
     }
 
-    searchSymbol(_name, table) {
+    searchSymbol(_name, table, line, char) {
         let result
         // SymbolTable.table.forEach(variable => {
         //     if(_name == variable.identifier) {
@@ -422,7 +433,7 @@ class Interpreter {
         //     // console.log(variable.identifier + "HWHJAKLHJKLHDJKLASHDJKLAHDSKLA")
         // })
 
-        while(table) {
+        do {
             table.table.forEach(variable => {
                 if(_name === variable.identifier) {
 
@@ -434,9 +445,23 @@ class Interpreter {
                     result = variable.value
                 }
             })
-            table = table.parent
-        }
+            if(table.parent != null) table = table.parent
+        } while(table.parent)
 
+        if (result == null && table.parent == null) {
+            this.importedModules.forEach(element => {
+
+                if(element.name == _name) {
+
+                    if(!element.loaded) {
+                        raiseError(`Cannot access values of partially initialized module "${_name}"`, this.lines, line, char - _name.length, char - 1)
+                    }
+
+                    result = new Struct(_name, null)
+                    result.staticTable = element.table
+                }
+            })
+        }
         if (result != null) return result
 
         // console.log("found nothing man  " + JSON.stringify(SymbolTable.table, null, 4))

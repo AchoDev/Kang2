@@ -107,6 +107,8 @@ class Struct {
     body
     staticTable
 
+    initialized = true
+
     constructor(identifier, body) {
         this.identifier = identifier
         this.body = body

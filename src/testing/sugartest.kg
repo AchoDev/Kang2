@@ -2,6 +2,7 @@
 var test = 0
 
 test += 10
+
 test *= 2
 
 test /= 4
