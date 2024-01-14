@@ -1,6 +1,4 @@
 
-var name = 10
-var name = 10
 
 func print(value) {
     log value
@@ -11,3 +9,5 @@ func input(value) {
     prompt value -> result
     return result
 }
+
+

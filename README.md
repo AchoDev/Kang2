@@ -2,6 +2,8 @@
 
 ![Kang2 Logo](./logo.png)
 
+[https://achodev.me/kang2](https://achodev.me/kang2)
+
 Kang2 is a free, open source and easy to use programming language, mainly for terminal applications.
 
 <br>

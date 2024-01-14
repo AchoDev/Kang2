@@ -1,4 +1,5 @@
 
+
 import io
 
 func hehehehaw() {
@@ -10,4 +11,3 @@ io.print("test")
 var test = io.input("hi man ")
 
 log test + " " + test
-
