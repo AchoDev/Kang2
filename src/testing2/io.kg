@@ -10,4 +10,13 @@ func input(value) {
     return result
 }
 
+struct House {
+    var name = "building"
+    var color = "red"
+
+    func get_infos() {
+        print("The " +  self.name +  "house is " + self.color)
+    }
+}
+
 

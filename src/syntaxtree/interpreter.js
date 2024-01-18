@@ -15,7 +15,8 @@ class Interpreter {
 
     lines = []
 
-    interpret(node, lines, importedModules) {
+    interpret(node, lines, importedModules, moduleName) {
+        this.moduleName = moduleName
         this.lines = lines
         this.importedModules = importedModules
         const table = new SymbolTable()
@@ -221,7 +222,7 @@ class Interpreter {
     
     openReferenceNode(node, localTable) {
         // console.log("ident: " + node.varName)
-        const value = this.searchSymbol(node.varName, localTable, node.line, node.char)
+        const value = this.searchSymbol(node.varName, localTable, node.line, node.char).result
 
         if(value == null) {
             // console.log(node.varName.length)
@@ -259,7 +260,7 @@ class Interpreter {
     }
 
     getFromArray(node, localTable) {
-        const array = this.searchSymbol(node.ident, localTable, node.line, node.char)
+        const array = this.searchSymbol(node.ident, localTable, node.line, node.char).result
 
         return array[this.open(node.index, localTable)]
     }
@@ -278,7 +279,7 @@ class Interpreter {
 
     openProperty(node, localTable) {
         const variable = this.searchSymbol(node.ident, localTable, node.line, node.char)
-        // const prop = variable.value.searchSymbol(node.property)
+        const table = variable.foreignTable ?? localTable
 
         // if(prop == null) {
         //     raiseError(`Property "${node.property}" of variable "${node.ident}" does not exist`, this.lines, node.line, node.char - node.property.length, node.char)
@@ -288,11 +289,12 @@ class Interpreter {
             raiseError(`Cannot access property of nonexistent variable "${node.ident}" `, this.lines, node.line, node.char - node.ident.length, node.char)
         }
 
-        if(variable instanceof Struct) {
-            return this.open(node.property, variable.staticTable)
+        if(variable.result instanceof Struct) {
+            // variable.result.staticTable.setParent(table)
+            return this.open(node.property, variable.result.staticTable)
         }
 
-        return this.open(node.property, variable.value)
+        return this.open(node.property, variable.result.value)
     }
 
     createFunction(node, localTable) {
@@ -312,10 +314,6 @@ class Interpreter {
     }
 
     callFunction(node, localTable) {
-        // console.log("!!!!  " + JSON.stringify(SymbolTable.get(node.ident)))
-        // console.log("!!!  " + SymbolTable.get(node.ident))
-        
-        // console.log(localTable)
         
         const func = structuredClone(localTable.get(node.ident))
         
@@ -379,7 +377,7 @@ class Interpreter {
         const newValue = this.open(node.value, localTable)
         const index = this.open(node.arrayReference.index, localTable)
 
-        let updatedArray = this.searchSymbol(ident, localTable, node.line, node.char)
+        let updatedArray = this.searchSymbol(ident, localTable, node.line, node.char).result
         updatedArray[index] = newValue
             
         return this.mutateVariable(new MutateNode(ident, updatedArray, true), localTable, true)
@@ -424,6 +422,7 @@ class Interpreter {
 
     searchSymbol(_name, table, line, char) {
         let result
+        let foreignTable
         // SymbolTable.table.forEach(variable => {
         //     if(_name == variable.identifier) {
         //         // console.log("found  " + variable.value)
@@ -459,12 +458,12 @@ class Interpreter {
 
                     result = new Struct(_name, null)
                     result.staticTable = element.table
+                    foreignTable = element.table
                 }
             })
         }
-        if (result != null) return result
+        if (result != null) return {"result": result, "foreignTable": foreignTable}
 
-        // console.log("found nothing man  " + JSON.stringify(SymbolTable.table, null, 4))
         return null
     }
 }
