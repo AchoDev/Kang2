@@ -108,13 +108,22 @@ class Struct {
     staticTable
 
     initialized = true
-    
+    origin
 
-    constructor(identifier, body) {
+    constructor(identifier, body, origin) {
         this.identifier = identifier
         this.body = body
         this.staticTable = new SymbolTable()
+        this.origin = origin
     }
 }
 
-module.exports = {Variable, SymbolTable, _Function, Struct}
+class ActiveReference {
+    value
+
+    constructor(value) {
+        this.value = value
+    }
+}
+
+module.exports = {Variable, SymbolTable, _Function, Struct, ActiveReference}

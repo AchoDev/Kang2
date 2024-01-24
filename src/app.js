@@ -24,7 +24,7 @@ const basemodule = process.argv[2].split("/").slice(-1)[0].split(".")[0]
 
 const modules = {}
 
-function loadModule(path) {
+function loadModule(path, islocal = false) {
 
     if(modules[path] != undefined) return
 
@@ -38,7 +38,8 @@ function loadModule(path) {
 
     let rawdata
     try {
-        rawdata = fs.readFileSync(basepath + "/" + path + ".kg", "utf-8");
+        if(!islocal) rawdata = fs.readFileSync(basepath + "/" + path + ".kg", "utf-8");
+        else rawdata = fs.readFileSync(path + ".kg", "utf-8");
     } catch(e) {
         return false
     }
@@ -61,17 +62,16 @@ function loadModule(path) {
 
     const tree = parser.parse()
     const interpreter = new Interpreter()
-    modules[path].table = interpreter.interpret(tree, parser.text, modules[path].importedModules)
+    modules[path].table = interpreter.interpret(tree, parser.text, modules[path].importedModules, path)
     modules[path].loaded = true
     return path
 }
 
-
+loadModule('../std/string.kg', true)
 loadModule(basemodule)
 
 
 console.log(`\nruntime: ${((new Date().getTime() / 1000) - seconds).toFixed(3)}s`)
-
 console.log("")
 
 // while(true) {

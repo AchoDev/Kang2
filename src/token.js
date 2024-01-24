@@ -51,6 +51,8 @@ const TokenType = Object.freeze({
     STATIC: 48,
     IMPORT: 49,
     FROM: 50,
+    ACTIVEREFERENCE: 51,
+    UNREFERENCED: 52,
 })
 
 

@@ -1,8 +1,25 @@
 
 
-import io
+// import io
+
+var basevar = 10
+var string = "test"
+
+loop 10 {
+    log "heheheheaw"
+}
+
+loop var i = 0, i < 10, i += 1 {
+    basevar = @basevar + 1
+}
+
+var reference = &basevar
 
 
-var house = io.House()
+func test(aaa) {
+    aaa = @aaa + 1
+}
 
-house.get_infos()
+test(&basevar)
+
+log reference + 5

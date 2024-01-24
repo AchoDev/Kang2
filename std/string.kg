@@ -1,0 +1,16 @@
+
+struct string {
+
+    func split() {
+        var result = []
+        var currentChar = self[0]
+        var currentIndex = 0 
+        
+        loop currentChar != null {
+            result[currentIndex] = currentChar
+            currentIndex++
+        }
+
+        return result
+    }
+}

@@ -1,6 +1,6 @@
 
-const { SubtractNode, MultiplyNode, DivideNode, MinusNode, StringNode, VarAssignNode, ReferenceNode, MutateNode, ArrayNode, StaticNode } = require("../nodes")
-const { SymbolTable, Variable, _Function, Struct } = require("../variable")
+const { SubtractNode, MultiplyNode, DivideNode, MinusNode, StringNode, VarAssignNode, ReferenceNode, MutateNode, ArrayNode, StaticNode, ActiveReferenceNode, DeReferenceNode, BooleanNode, PlusNode } = require("../nodes")
+const { SymbolTable, Variable, _Function, Struct, ActiveReference } = require("../variable")
 const rls = require("readline-sync")
 const { COMPARISON_TYPE } = require("./lexer")
 const raiseError = require("./error_handler")
@@ -60,6 +60,12 @@ class Interpreter {
                     break
                 case 'ReferenceNode':
                     result = this.openReferenceNode(node, localTable)
+                    break
+                case 'ActiveReferenceNode':
+                    result = this.openReferenceNode(node, localTable)
+                    break
+                case 'DeReferenceNode':
+                    result = this.openReferenceNode(node, localTable, true)
                     break
                 case 'StringNode':
                     result = this.openStringNode(node)
@@ -220,13 +226,28 @@ class Interpreter {
     //     return JSON.parse(JSON.stringify(val))
     // }
     
-    openReferenceNode(node, localTable) {
+    openReferenceNode(node, localTable, allowActiveReference=false) {
         // console.log("ident: " + node.varName)
-        const value = this.searchSymbol(node.varName, localTable, node.line, node.char).result
+
+        let value = this.searchSymbol(node.varName, localTable, node.line, node.char)
 
         if(value == null) {
             // console.log(node.varName.length)
             raiseError(`"${node.varName}" is not defined`, this.lines, node.line, node.char - node.varName.length - 1, node.char)
+        }
+
+        value = value.result
+
+        if(node instanceof ActiveReferenceNode) {
+            if(!allowActiveReference) {
+                raiseError(`Cannot use active reference in this context`, this.lines, node.line, node.char - node.varName.length - 1, node.char)
+            }    
+
+            return new ActiveReference(node.varName)
+        }
+
+        if(value instanceof ActiveReference) { 
+            return this.open(new ReferenceNode(value.value), localTable)
         }
 
         return structuredClone(value)
@@ -235,18 +256,32 @@ class Interpreter {
 
     createVariable(node, localTable) {
         let value
-        
+        let type = 'any'
+
         if(localTable.get(node.nodeA) != null) { 
             raiseError(`Variable "${node.nodeA}" is already defined`, this.lines, node.line, node.char - node.nodeA.length, node.char - 1)
         }
         if(node.nodeB) {
-            value = structuredClone(this.open(node.nodeB, localTable))
+            let table = localTable
+            
+            if(node.nodeB instanceof ActiveReferenceNode) {
+                value = this.openReferenceNode(node.nodeB, localTable, true)
+            } else {
+                value = this.open(node.nodeB, localTable)
+            }
+
             if(value instanceof Variable) {
-                value.value.parent = localTable
+                if(value.value.parent !== localTable) table = value.value.parent
+                value = structuredClone(value)
+                value.value.parent = table
+            }
+
+            else if (value instanceof string) { 
+                type = 'string'
             }
         }
 
-        localTable.add(new Variable('any', node.nodeA, value))
+        localTable.add(new Variable(type, node.nodeA, value))
     }
 
     convertArray(node, localTable) {
@@ -267,6 +302,7 @@ class Interpreter {
 
     createStruct(node, localTable) {
         const result = new Struct(node.identifier, node.statementSequence)
+        result.origin = this.moduleName
         result.staticTable.setParent(localTable)
         for(let element of node.statementSequence.nodes) { 
             if(element instanceof StaticNode) {
@@ -279,18 +315,12 @@ class Interpreter {
 
     openProperty(node, localTable) {
         const variable = this.searchSymbol(node.ident, localTable, node.line, node.char)
-        const table = variable.foreignTable ?? localTable
-
-        // if(prop == null) {
-        //     raiseError(`Property "${node.property}" of variable "${node.ident}" does not exist`, this.lines, node.line, node.char - node.property.length, node.char)
-        // }
 
         if(variable == null) {
             raiseError(`Cannot access property of nonexistent variable "${node.ident}" `, this.lines, node.line, node.char - node.ident.length, node.char)
         }
 
         if(variable.result instanceof Struct) {
-            // variable.result.staticTable.setParent(table)
             return this.open(node.property, variable.result.staticTable)
         }
 
@@ -332,6 +362,7 @@ class Interpreter {
         let result = this.open(func.body, table)
         
         if(func instanceof Struct) {
+            table.setParent(func.staticTable.parent)
             result = new Variable(func.identifier, func.identifier, table)
             // result = {}
             
@@ -352,21 +383,25 @@ class Interpreter {
 
     loop(node, localTable) {
 
-        const condition = this.open(node.conditionNode, localTable)
-
-        switch(typeof condition) {
-            case "boolean":
-                while(this.open(node.conditionNode, localTable)) {
-                    this.open(node.statementNode, new SymbolTable(localTable))
-                }
-                break
-            case "number":
-                for(let i = this.open(node.conditionNode, localTable); i > 0; i--) {
-                    this.open(node.statementNode, new SymbolTable(localTable))
-                }
-                break
+        const table = new SymbolTable(localTable)
+        if(node.startStatementNode != null) {
+            this.open(node.startStatementNode, table)
+        }
+        if(node.endStatementNode != null) { 
+            node.statementNode.nodes.push(node.endStatementNode)
         }
 
+
+        if(node.conditionNode instanceof PlusNode) {
+            for(let i = this.open(node.conditionNode, table); i > 0; i--) {
+                this.open(node.statementNode, table)
+            }
+            return
+        } 
+        
+        while(this.open(node.conditionNode, table)) {
+            this.open(node.statementNode, table)
+        }
     }
 
     openStringNode = (node) => node.value  
@@ -386,21 +421,30 @@ class Interpreter {
     mutateVariable(node, localTable, isConverted=false) {
 
         const value = isConverted ? node.value : this.open(node.value, localTable) 
+        let mutateTarget = node.ident
 
-        while(!localTable.mutate(node.ident, value)) {
+        const result = this.searchSymbol(node.ident, localTable, node.line, node.char)
+        if(result.result instanceof ActiveReference) {
+            mutateTarget = result.result.value 
+        }
+
+        while(!localTable.mutate(mutateTarget, value)) {
             localTable = localTable.parent
             if(!localTable) {
 
-                console.log(node.ident)
-                console.log(`Can't mutate a variable named "${node.ident}", because it doesn't exist `)
-                process.exit(1)
+                raiseError(`Variable "${node.ident}" is not defined`, this.lines, node.line, node.char - node.ident.length, node.char - 1)
             }
         }
         return true
     }
 
     printValue(node, localTable) {
-        console.log(this.open(node.node, localTable))
+        const result = this.open(node.node, localTable)
+        if(result instanceof ActiveReference) {
+            console.log(this.open(new ReferenceNode(result.value), localTable))
+            return
+        }
+        console.log(result)
     }
 
     getInput(node, localTable) {
@@ -432,6 +476,7 @@ class Interpreter {
         //     // console.log(variable.identifier + "HWHJAKLHJKLHDJKLASHDJKLAHDSKLA")
         // })
 
+        let checkedGlobal = false
         do {
             table.table.forEach(variable => {
                 if(_name === variable.identifier) {
@@ -445,7 +490,8 @@ class Interpreter {
                 }
             })
             if(table.parent != null) table = table.parent
-        } while(table.parent)
+            else checkedGlobal = true
+        } while(!checkedGlobal)
 
         if (result == null && table.parent == null) {
             this.importedModules.forEach(element => {

@@ -243,7 +243,7 @@ class Parser {
             this.advance()
         } else if (this.currentToken != null && this.currentToken.type == TokenType.REF) {
             // console.log("hehehhaw " + JSON.stringify(this.currentToken, null, 4))
-            result = new nodes.ReferenceNode(this.currentToken.value)
+            result = new nodes.ReferenceNode(this.currentToken.value, this.currentToken.line, this.currentToken.char)
             this.advance()
         } else if (this.currentToken != null && (this.currentToken.type == TokenType.EQ)) {
             this.advance()
@@ -262,6 +262,20 @@ class Parser {
 
         else if(this.currentToken != null && this.currentToken.type == TokenType.LSQRBR) {
             result = this.handleArray()
+            this.advance()
+        } else if(this.currentToken != null && this.currentToken.type == TokenType.ACTIVEREFERENCE) {
+            this.advance()
+            if(this.currentToken.type != TokenType.IDENT) {
+                raiseError(`"${this.currentToken.value}" is not a valid active reference`, this.text, this.currentToken.line, this.currentToken.char - this.currentToken.value.length, this.currentToken.char)
+            }
+            result = new nodes.ActiveReferenceNode(this.currentToken.value, this.currentToken.line, this.currentToken.char)
+            this.advance()
+        } else if(this.currentToken != null && this.currentToken.type == TokenType.UNREFERENCED) { 
+            this.advance()
+            if(this.currentToken.type != TokenType.IDENT) {
+                raiseError(`"${this.currentToken.value}" cannot be dereferenced`, this.text, this.currentToken.line, this.currentToken.char - this.currentToken.value.length, this.currentToken.char)
+            }
+            result = new nodes.DeReferenceNode(this.currentToken.value, this.currentToken.line, this.currentToken.char)
             this.advance()
         }
 
@@ -574,10 +588,51 @@ class Parser {
 
     handleLoop() {
         this.advance()
+        let startStatement
+        let condition
+        let endStatement
 
-        const cond = this.expr()
-        this.advance()
-        const result = new nodes.LoopNode(cond, this.statementSequence())
+        if(this.currentToken.type == TokenType.VARKEY) {
+            this.advance()
+            const ident = this.currentToken.value
+            this.advance()
+
+            if(this.currentToken.type != TokenType.EQ) {
+                raiseError(`"${this.currentToken.value}" is not a valid statement`, this.text, this.currentToken.line, this.currentToken.char - this.currentToken.value.length, this.currentToken.char)
+            }
+
+            this.advance()
+
+            const value = this.expr()
+            
+            if(this.currentToken.type == TokenType.COMMA) {
+                this.advance()
+            } else if(this.currentToken.type != TokenType.LCURBR) {
+                raiseError(`Expected curly bracket, instead got "${this.currentToken.value}"`, this.text, this.currentToken.line, this.currentToken.char - this.currentToken.value.length, this.currentToken.char)
+            }
+
+            startStatement = new nodes.VarAssignNode(ident, value, this.currentToken.line, this.currentToken.char)
+        }
+
+        condition = this.expr()
+
+        if(this.currentToken.type == TokenType.COMMA) {
+            this.advance()
+            if(this.currentToken.type == TokenType.LCURBR) {
+                raiseError(`Expected statement after comma`, this.text, this.currentToken.line, this.currentToken.char, this.currentToken.char)
+            }
+        }
+
+        if(this.currentToken.type != TokenType.LCURBR) {   
+            endStatement = this.statement()
+            if(!(endStatement instanceof nodes.MutateNode || endStatement instanceof nodes.FuncCallNode)) {
+                raiseError(`"${this.currentToken.value}" is not a valid statement`, this.text, this.currentToken.line, this.currentToken.char - this.currentToken.value.length, this.currentToken.char)
+            }
+        } else {
+            this.advance()
+        }
+
+        const result = new nodes.LoopNode(condition, this.statementSequence(), startStatement, endStatement)
 
         this.advance()
 

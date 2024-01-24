@@ -192,8 +192,7 @@ class Lexer {
                         this.advance()
                         token = new Token(TokenType.COMP, COMPARISON_TYPE.AND)
                     }
-                    else console.log("active references work in progress")
-                    process.exit(0)
+                    else token = new Token(TokenType.ACTIVEREFERENCE, "&")
                     break
 
                 case ']':
@@ -233,7 +232,10 @@ class Lexer {
                     token = new Token(TokenType.DOT, ".")
                     break
 
-                
+                case "@":
+                    this.advance()
+                    token = new Token(TokenType.UNREFERENCED, "@")
+                    break
 
                 default:
                     console.log(`character: ${this.currentChar} is undefined`)

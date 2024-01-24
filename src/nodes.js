@@ -126,6 +126,30 @@ class ReferenceNode {
     }
 }
 
+class ActiveReferenceNode {
+    varName
+    line
+    char
+
+    constructor(ref, line, char) {
+        this.varName = ref
+        this.line = line
+        this.char = char
+    }
+}
+
+class DeReferenceNode {
+    varName
+    line
+    char
+
+    constructor(ref, line, char) {
+        this.varName = ref
+        this.line = line
+        this.char = char
+    }
+}
+
 class StringNode {
     value
     constructor(val) {
@@ -274,12 +298,16 @@ class ModuloNode {
 }
 
 class LoopNode {
+    startStatementNode
+    endStatementNode
     statementNode
     conditionNode
 
-    constructor(condition, statements) {
+    constructor(condition, statements, startStatementNode, endStatementNode) {
         this.conditionNode = condition
         this.statementNode = statements
+        this.startStatementNode = startStatementNode
+        this.endStatementNode = endStatementNode
 
     }
 }
@@ -377,6 +405,8 @@ module.exports = {
     VarAssignNode, 
     IdentifierNode, 
     ReferenceNode,
+    ActiveReferenceNode,
+    DeReferenceNode,
     StringNode,
     FuncCreateNode,
     StructCreateNode,
