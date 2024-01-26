@@ -393,6 +393,8 @@ class Lexer {
                 case 'import':
                     result = new Token(TokenType.IMPORT, string)
                     break
+
+                
                 
                 // case 'namespace':
                 //     result = new Token(TokenType.NAMESPACE, string)

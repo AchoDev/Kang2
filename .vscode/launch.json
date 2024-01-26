@@ -12,7 +12,7 @@
                 "<node_internals>/**"
             ],
             "program": "${workspaceFolder}/src/app.js",
-            "args": ["src/testing2/mainfile.kg"]
+            "args": ["src/testing2/stringss.kg"]
         }
     ]
 }

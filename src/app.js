@@ -36,6 +36,8 @@ function loadModule(path, islocal = false) {
         importedModules: [],
     }
 
+    modules[path].importedModules.push(modules["../std/string.kg"]);
+
     let rawdata
     try {
         if(!islocal) rawdata = fs.readFileSync(basepath + "/" + path + ".kg", "utf-8");

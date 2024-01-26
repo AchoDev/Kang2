@@ -1,0 +1,5 @@
+// import io
+
+var string = "test"
+
+log string.split()

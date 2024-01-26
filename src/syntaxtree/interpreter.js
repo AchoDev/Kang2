@@ -276,7 +276,7 @@ class Interpreter {
                 value.value.parent = table
             }
 
-            else if (value instanceof string) { 
+            else if (typeof value === "string") { 
                 type = 'string'
             }
         }
@@ -322,6 +322,10 @@ class Interpreter {
 
         if(variable.result instanceof Struct) {
             return this.open(node.property, variable.result.staticTable)
+        }
+
+        if(typeof variable.result === 'string') {
+            return this.open(node.property, this.importedModules)
         }
 
         return this.open(node.property, variable.result.value)

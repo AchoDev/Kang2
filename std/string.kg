@@ -1,6 +1,5 @@
 
 struct string {
-
     func split() {
         var result = []
         var currentChar = self[0]

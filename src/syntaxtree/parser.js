@@ -462,6 +462,7 @@ class Parser {
 
                 if(this.currentToken.type == TokenType.RPAREN) {
                     result = new nodes.FuncCallNode(string, args, startLine, startChar)
+                    this.advance()
                     return result
                 } else {
                     this.raiseSyntaxError("right parenthesis")
