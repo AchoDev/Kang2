@@ -1,5 +1,15 @@
 // import io
 
-var string = "test"
+// var string = "test"
 
-log string.split()
+// log string.split()
+
+var testarray = [1, 2, 3]
+var testarray2 = ["hello", ", ", "world", "!!!!"]
+
+testarray.push(4)
+
+
+log testarray.fold()
+
+log testarray2.fold()

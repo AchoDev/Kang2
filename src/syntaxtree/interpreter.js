@@ -1,5 +1,5 @@
 
-const { SubtractNode, MultiplyNode, DivideNode, MinusNode, StringNode, VarAssignNode, ReferenceNode, MutateNode, ArrayNode, StaticNode, ActiveReferenceNode, DeReferenceNode, BooleanNode, PlusNode } = require("../nodes")
+const { SubtractNode, MultiplyNode, DivideNode, MinusNode, StringNode, VarAssignNode, ReferenceNode, MutateNode, ArrayNode, StaticNode, ActiveReferenceNode, DeReferenceNode, BooleanNode, PlusNode, FuncCallNode } = require("../nodes")
 const { SymbolTable, Variable, _Function, Struct, ActiveReference } = require("../variable")
 const rls = require("readline-sync")
 const { COMPARISON_TYPE } = require("./lexer")
@@ -231,12 +231,12 @@ class Interpreter {
 
         let value = this.searchSymbol(node.varName, localTable, node.line, node.char)
 
-        if(value == null) {
+        if(value == null && node.varName != "null") {
             // console.log(node.varName.length)
             raiseError(`"${node.varName}" is not defined`, this.lines, node.line, node.char - node.varName.length - 1, node.char)
         }
 
-        value = value.result
+        if(value != null) value = value.result
 
         if(node instanceof ActiveReferenceNode) {
             if(!allowActiveReference) {
@@ -278,6 +278,8 @@ class Interpreter {
 
             else if (typeof value === "string") { 
                 type = 'string'
+            } else if (value instanceof Array) {
+                type = 'array'
             }
         }
 
@@ -297,7 +299,9 @@ class Interpreter {
     getFromArray(node, localTable) {
         const array = this.searchSymbol(node.ident, localTable, node.line, node.char).result
 
-        return array[this.open(node.index, localTable)]
+        const result = array[this.open(node.index, localTable)]
+        if(result == null) return null
+        else return result
     }
 
     createStruct(node, localTable) {
@@ -324,9 +328,13 @@ class Interpreter {
             return this.open(node.property, variable.result.staticTable)
         }
 
-        if(typeof variable.result === 'string') {
-            return this.open(node.property, this.importedModules)
+        for (let element of this.importedModules) {
+
+            if(element.name !== typeof variable.result && !(element.name === 'array' && variable.result instanceof Array)) continue
+            node.property.args.unshift(new StringNode(variable.result))
+            return this.open(node.property, element.table)
         }
+        
 
         return this.open(node.property, variable.result.value)
     }
@@ -471,6 +479,7 @@ class Interpreter {
     searchSymbol(_name, table, line, char) {
         let result
         let foreignTable
+        let foundResult = false
         // SymbolTable.table.forEach(variable => {
         //     if(_name == variable.identifier) {
         //         // console.log("found  " + variable.value)
@@ -491,6 +500,7 @@ class Interpreter {
                     }
 
                     result = variable.value
+                    foundResult = true
                 }
             })
             if(table.parent != null) table = table.parent
@@ -508,13 +518,12 @@ class Interpreter {
 
                     result = new Struct(_name, null)
                     result.staticTable = element.table
-                    foreignTable = element.table
+                    foundResult = true
                 }
             })
         }
-        if (result != null) return {"result": result, "foreignTable": foreignTable}
-
-        return null
+        if (foundResult) return {"result": result, "foreignTable": foreignTable}
+        else return null
     }
 }
 

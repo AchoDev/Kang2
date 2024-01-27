@@ -29,6 +29,8 @@ class Parser {
         this.index++
     }
 
+    
+
     findModules() {
         let result = []
 
@@ -101,7 +103,8 @@ class Parser {
                 this.advance()
             } else if(this.currentToken.type == TokenType.IDENT) {
                 const value = this.currentToken.value
-                result = this.handleIdent()
+                this.advance()
+                result = this.handleIdent(new nodes.ReferenceNode(value, this.currentToken.line, this.currentToken.char))
 
                 if(result instanceof nodes.ReferenceNode) {
                     raiseError(`"${value}" is not a statement`, this.text, result.line, 0, result.char)
@@ -251,7 +254,9 @@ class Parser {
             result = new nodes.StringNode(this.currentToken.value)
             this.advance()   
         } else if (this.currentToken != null && this.currentToken.type == TokenType.IDENT) {
-            result = this.handleIdent()
+            const str = this.currentToken.value
+            this.advance()
+            result = this.handleIdent(str)
         } else if(this.currentToken != null && this.currentToken.type == TokenType.TRUE) {
             result = new nodes.BooleanNode(true)
             this.advance()
@@ -437,13 +442,10 @@ class Parser {
         }
     }
 
-    handleIdent() {
-        const string = this.currentToken.value
+    handleIdent(node) {
         const startChar = this.currentToken.char
         const startLine = this.currentToken.line
         let result
-
-        this.advance()
         
         if(this.currentToken == null) return new nodes.ReferenceNode(string, startLine, startChar) 
 
@@ -461,18 +463,18 @@ class Parser {
                 }
 
                 if(this.currentToken.type == TokenType.RPAREN) {
-                    result = new nodes.FuncCallNode(string, args, startLine, startChar)
+                    result = new nodes.FuncCallNode(node, args, startLine, startChar)
                     this.advance()
                     return result
                 } else {
-                    this.raiseSyntaxError("right parenthesis")
+                    raiseError(`Expected right parenthesis, instead got "${this.currentToken.value}"`, this.text, this.currentToken.line, this.currentToken.char, this.currentToken.char)
                 }
 
                 break
             
             case TokenType.EQ:
                 this.advance()
-                result = new nodes.MutateNode(string, this.expr())
+                result = new nodes.MutateNode(node, this.expr())
                 return result
 
             case TokenType.LSQRBR:
@@ -480,12 +482,12 @@ class Parser {
 
                 this.skipLineBreaks()
 
-                result = new nodes.ArrayReferenceNode(string, this.expr())
+                result = new nodes.ArrayReferenceNode(node, this.expr())
 
                 this.skipLineBreaks()
 
                 if(this.currentToken.type != TokenType.RSQRBR) {
-                    console.log("right square bracket missing")
+                    raiseError(`Expected right square bracket, instead got: "${this.currentToken.value}"`, this.text, this.currentToken.line, this.currentToken.char, this.currentToken.char)
                 }
 
                 this.advance()
@@ -495,81 +497,75 @@ class Parser {
                     result = new nodes.MutateArrayNode(result, this.expr())
                 }
 
-                return result
+                break
 
             case TokenType.DOT:
                 this.advance()
-                const prop = this.handleIdent()
+                const prop = this.handleIdent(node)
 
-                result = new nodes.PropertyNode(string, prop, startLine, startChar)
+                result = new nodes.PropertyNode(node, prop, startLine, startChar)
 
-                return result
+                break
 
             case TokenType.PLUSEQ:
                 this.advance()
                 result = new nodes.MutateNode(
-                    string, 
-                    new nodes.AddNode(new nodes.ReferenceNode(string, startLine, startChar), this.expr())
+                    node,
+                    new nodes.AddNode(node, this.expr())
                 )
 
-                // this.advance()
-                return result
+                break
+                
 
             case TokenType.MINUSEQ:
                 this.advance()
                 result = new nodes.MutateNode(
-                    string, 
-                    new nodes.SubtractNode(new nodes.ReferenceNode(string, startLine, startChar), this.expr())
+                    node, 
+                    new nodes.SubtractNode(node, this.expr())
                 )
-                return result
+                break
 
             case TokenType.MULEQ:
                 this.advance()
                 result = new nodes.MutateNode(
-                    string, 
-                    new nodes.MultiplyNode(new nodes.ReferenceNode(string, startLine, startChar), this.expr())
+                    node,
+                    new nodes.MultiplyNode(node, this.expr())
                 )
-                return result
+                break
 
             case TokenType.DIVEQ:
                 this.advance()
                 result = new nodes.MutateNode(
-                    string, 
-                    new nodes.DivideNode(new nodes.ReferenceNode(string, startLine, startChar), this.expr())
+                    node, 
+                    new nodes.DivideNode(node, this.expr())
                 )
-                return result
+                break
 
             case TokenType.INC:
-                this.advance()
                 result = new nodes.MutateNode(
-                    string, 
-                    new nodes.AddNode(new nodes.ReferenceNode(string, startLine, startChar), new nodes.PlusNode(1))
+                    node, 
+                    new nodes.AddNode(node, new nodes.PlusNode(1))
                 )
 
                 this.advance()
-
                 return result
             
             case TokenType.DEC:
                 this.advance()
                 result = new nodes.MutateNode(
-                    string, 
-                    new nodes.SubtractNode(new nodes.ReferenceNode(string, startLine, startChar), new nodes.PlusNode(1))
+                    node, 
+                    new nodes.SubtractNode(node, new nodes.PlusNode(1))
                 )
                 return result
 
             default:
-                // raiseError(
-                // `"${this.currentToken.value}" is not a valid statement`, 
-                // this.text, 
-                // this.currentToken.line, 
-                // this.currentToken.char - this.currentToken.value.length, 
-                // this.currentToken.char
-                // )
-                // this.advance()
-                result = new nodes.ReferenceNode(string, startLine, startChar)
-                return result
+                return node
         }
+
+        this.advance()
+        if(this.currentToken != null && this.currentToken.type != TokenType.LINEBR) result = this.handleIdent(result)
+
+        return result;
     }
 
     handleArray() {

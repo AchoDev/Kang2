@@ -38,6 +38,7 @@ function loadModule(path, native = false) {
     }
 
     modules[path].importedModules.push(modules["string"]);
+    modules[path].importedModules.push(modules["array"]);
 
 
     let rawdata
@@ -66,6 +67,9 @@ function loadModule(path, native = false) {
     });
 
     const tree = parser.parse()
+    if(process.argv[3] == "-t" && !native) console.log(tree)
+
+
     const interpreter = new Interpreter()
 
     modules[path].table = interpreter.interpret(tree, parser.text, modules[path].importedModules, path)
@@ -74,6 +78,7 @@ function loadModule(path, native = false) {
 }
 
 loadModule('string', true)
+loadModule('array', true)
 loadModule(basemodule)
 
 

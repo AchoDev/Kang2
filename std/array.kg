@@ -1,0 +1,39 @@
+
+func length(self) {
+    var counter = 0
+    
+    loop var i = 0, self[i] != null, i++ {
+        counter++
+    }
+
+    return counter
+}
+
+func push(self, value) {
+    self[self.length()] = value
+}
+
+func fold(self) {
+    var result = self[0]
+
+    loop var i = 1, self[i] != null, i++ {
+        result += self[i]
+    }
+    return result
+}
+
+func map(self, fn) {
+    var result = []
+
+    loop var i = 0, self[i] != null, i++ {
+        result.push(fn(self[i]))
+    }
+
+    return result
+}
+
+func foreach(self, fn) {
+    loop var i = 0, self[i] != null, i++ {
+        fn(self[i])
+    }
+}

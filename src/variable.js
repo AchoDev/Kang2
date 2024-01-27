@@ -7,6 +7,7 @@ class SymbolTable {
 
     constructor(parent) {
         this.parent = parent
+        // this.table.push(new Variable("null", "null", null, null))
     }
 
     // static localTableList = new Map()
