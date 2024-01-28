@@ -1,11 +1,12 @@
 
-const { SubtractNode, MultiplyNode, DivideNode, MinusNode, StringNode, VarAssignNode, ReferenceNode, MutateNode, ArrayNode, StaticNode, ActiveReferenceNode, DeReferenceNode, BooleanNode, PlusNode, FuncCallNode } = require("../nodes")
+const { SubtractNode, MultiplyNode, DivideNode, MinusNode, StringNode, VarAssignNode, ReferenceNode, MutateNode, ArrayNode, StaticNode, ActiveReferenceNode, DeReferenceNode, BooleanNode, PlusNode, FuncCallNode, ArrayReferenceNode } = require("../nodes")
 const { SymbolTable, Variable, _Function, Struct, ActiveReference } = require("../variable")
 const rls = require("readline-sync")
 const { COMPARISON_TYPE } = require("./lexer")
 const raiseError = require("./error_handler")
 
 var clone = require('clone');
+const { isFunctionDeclaration } = require("typescript")
 
 const structuredClone = obj => {
   return clone(obj)
@@ -297,7 +298,7 @@ class Interpreter {
     }
 
     getFromArray(node, localTable) {
-        const array = this.searchSymbol(node.ident, localTable, node.line, node.char).result
+        const array = this.open(node.ident, localTable)
 
         const result = array[this.open(node.index, localTable)]
         if(result == null) return null
@@ -318,25 +319,28 @@ class Interpreter {
     }
 
     openProperty(node, localTable) {
-        const variable = this.searchSymbol(node.ident, localTable, node.line, node.char)
+
+        const variable = this.open(node.ident, localTable)
+
+        // const variable = this.searchSymbol(node.ident, localTable, node.line, node.char)
 
         if(variable == null) {
             raiseError(`Cannot access property of nonexistent variable "${node.ident}" `, this.lines, node.line, node.char - node.ident.length, node.char)
         }
 
-        if(variable.result instanceof Struct) {
-            return this.open(node.property, variable.result.staticTable)
+        if(variable instanceof Struct) {
+            return this.open(node.property, variable.staticTable)
         }
 
         for (let element of this.importedModules) {
-
-            if(element.name !== typeof variable.result && !(element.name === 'array' && variable.result instanceof Array)) continue
-            node.property.args.unshift(new StringNode(variable.result))
+            if(element.name !== typeof variable && !(element.name === 'array' && variable instanceof Array)) continue
+            node.property.args.unshift(new StringNode(variable))
+            element.table.setParent(localTable)
             return this.open(node.property, element.table)
         }
         
 
-        return this.open(node.property, variable.result.value)
+        return this.open(node.property, variable.value)
     }
 
     createFunction(node, localTable) {
@@ -356,21 +360,31 @@ class Interpreter {
     }
 
     callFunction(node, localTable) {
+
+        if(node.ident.varName == "print") {
+            console.log(" ")
+        }
         
-        const func = structuredClone(localTable.get(node.ident))
+        const func = this.open(node.ident, localTable)
+
         
         if(!func) {
             raiseError(`Function or Struct "${node.ident}" is not defined`, this.lines, node.line, node.char - node.ident.length, node.char - 1)
         }
 
         for(let i = 0; i < node.args.length; i++) {
-            func.body.nodes.unshift(new VarAssignNode(func.arguments[i], node.args[i]))
+            func.body.nodes.unshift(new VarAssignNode(func.arguments[i], this.open(node.args[i], localTable)))
+            // problem is var assign node assigns variables per tree not value
+            // but vars need to get value BEFORE calling function elsewhere
+            // prob add val to varassign to allow plain values
         }
 
         const table = new SymbolTable()
 
         table.setParent(localTable)
         
+
+
         let result = this.open(func.body, table)
         
         if(func instanceof Struct) {
@@ -432,18 +446,23 @@ class Interpreter {
 
     mutateVariable(node, localTable, isConverted=false) {
 
-        const value = isConverted ? node.value : this.open(node.value, localTable) 
-        let mutateTarget = node.ident
+        let value = isConverted ? node.value : this.open(node.value, localTable)
+        let mutateTarget = node.ident.varName
 
-        const result = this.searchSymbol(node.ident, localTable, node.line, node.char)
-        if(result.result instanceof ActiveReference) {
+        const result = this.open(node.ident, localTable)
+        if(result instanceof ActiveReference) {
             mutateTarget = result.result.value 
+        }
+
+        if(node.ident instanceof ArrayReferenceNode) {
+            value = this.open(node.ident.ident, localTable)
+            value[this.open(node.ident.index, localTable)] = this.open(node.value, localTable)
+            mutateTarget = node.ident.ident.varName
         }
 
         while(!localTable.mutate(mutateTarget, value)) {
             localTable = localTable.parent
             if(!localTable) {
-
                 raiseError(`Variable "${node.ident}" is not defined`, this.lines, node.line, node.char - node.ident.length, node.char - 1)
             }
         }
@@ -499,7 +518,11 @@ class Interpreter {
                         return
                     }
 
-                    result = variable.value
+                    if(variable instanceof _Function || variable instanceof Struct) { 
+                        result = variable
+                    } else {
+                        result = variable.value
+                    } 
                     foundResult = true
                 }
             })

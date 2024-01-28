@@ -1,15 +1,15 @@
 
 
 func split(self) {
-    // var result = []
-    // var currentChar = self[0]
-    // var currentIndex = 0 
+    var result = []
+    var currentChar = self[0]
+    var currentIndex = 0 
     
-    // loop currentChar != null {
-    //     result[currentIndex] = currentChar
-    //     currentIndex++
-    //     currentChar = self[currentIndex]
-    // }
+    loop currentChar != null {
+        result[currentIndex] = currentChar
+        currentIndex++
+        currentChar = self[currentIndex]
+    }
 
     return result
 }

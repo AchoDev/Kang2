@@ -449,10 +449,6 @@ class Parser {
         
         if(this.currentToken == null) return node
 
-        if(node.varName == "code" && startLine == 26 && this.text[0] != 'func length(self) {') {
-            console.log("CODE")
-        }
-
         switch(this.currentToken.type) {
             case TokenType.LPAREN:
                 this.advance()
@@ -494,6 +490,8 @@ class Parser {
                     raiseError(`Expected right square bracket, instead got: "${this.currentToken.value}"`, this.text, this.currentToken.line, this.currentToken.char, this.currentToken.char)
                 }
 
+                this.advance()
+
                 // if(this.currentToken.type == TokenType.EQ) {
                 //     this.advance()
                 //     result = new nodes.MutateArrayNode(result, this.expr())
@@ -503,7 +501,13 @@ class Parser {
 
             case TokenType.DOT:
                 this.advance()
-                const prop = this.handleIdent(new nodes.ReferenceNode(this.currentToken.value, this.currentToken.line, this.currentToken.char))
+                if(this.currentToken.type != TokenType.IDENT) { 
+                    raiseError(`Expected identifier, instead got "${this.currentToken.value}"`, this.text, this.currentToken.line, this.currentToken.char - this.currentToken.value.length, this.currentToken.char)
+                }
+
+                const nd = new nodes.ReferenceNode(this.currentToken.value, this.currentToken.line, this.currentToken.char)
+                this.advance()
+                const prop = this.handleIdent(nd)
 
                 result = new nodes.PropertyNode(node, prop, startLine, startChar)
 
@@ -564,7 +568,7 @@ class Parser {
                 return node
         }
 
-        this.advance()
+        // this.advance()
         if(this.currentToken != null && this.currentToken.type != TokenType.LINEBR) result = this.handleIdent(result)
 
         return result;

@@ -67,7 +67,7 @@ function loadModule(path, native = false) {
     });
 
     const tree = parser.parse()
-    if(process.argv[3] == "-t" && !native) console.log(tree)
+    if(process.argv[3] == "-t" && !native) console.log(`Syntax Tree for module "${path}":\n\n`, tree, "\n")
 
 
     const interpreter = new Interpreter()
