@@ -1,4 +1,3 @@
-
 func length(self) {
     var counter = 0
     

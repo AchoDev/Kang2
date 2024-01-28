@@ -1,24 +1,25 @@
 import io
 
-var code = io.input("your brainfck code: ")
+// var code = io.input("your brainfck code: ")
+var code = '++++++++++.'
 var memory = [0, 0, 0, 0, 0, 0, 0, 0, 0]
 var current_cell = 0
 var alphabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
 
 func interpret_symbol(symbol) {
-    if symbol == '+' {   
+    if symbol == '+' {
         memory[current_cell] += 1
     }
-    elseif symbol == '-' {   
+    elseif symbol == '-' {
         memory[current_cell] -= 1
     }
-    elseif symbol == '>' {   
+    elseif symbol == '>' {
         current_cell += 1
     }
-    elseif symbol == '<' {   
+    elseif symbol == '<' {
         current_cell -= 1
     }
-    elseif symbol == '.' {   
+    elseif symbol == '.' {
         io.print(memory[current_cell])
     }
 }

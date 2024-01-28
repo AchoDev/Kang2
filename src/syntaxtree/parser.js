@@ -109,7 +109,7 @@ class Parser {
                 if(result instanceof nodes.ReferenceNode) {
                     raiseError(`"${value}" is not a statement`, this.text, result.line, 0, result.char)
                 }
-                this.advance()
+                // this.advance()
             } else if(this.currentToken.type == TokenType.LOG) {
                 this.advance()
                 result = new nodes.LogNode(this.expr())
@@ -256,7 +256,7 @@ class Parser {
         } else if (this.currentToken != null && this.currentToken.type == TokenType.IDENT) {
             const str = this.currentToken.value
             this.advance()
-            result = this.handleIdent(str)
+            result = this.handleIdent(new nodes.ReferenceNode(str, this.currentToken.line, this.currentToken.char))
         } else if(this.currentToken != null && this.currentToken.type == TokenType.TRUE) {
             result = new nodes.BooleanNode(true)
             this.advance()
@@ -447,7 +447,11 @@ class Parser {
         const startLine = this.currentToken.line
         let result
         
-        if(this.currentToken == null) return new nodes.ReferenceNode(string, startLine, startChar) 
+        if(this.currentToken == null) return node
+
+        if(node.varName == "code" && startLine == 26 && this.text[0] != 'func length(self) {') {
+            console.log("CODE")
+        }
 
         switch(this.currentToken.type) {
             case TokenType.LPAREN:
@@ -490,18 +494,16 @@ class Parser {
                     raiseError(`Expected right square bracket, instead got: "${this.currentToken.value}"`, this.text, this.currentToken.line, this.currentToken.char, this.currentToken.char)
                 }
 
-                this.advance()
-
-                if(this.currentToken.type == TokenType.EQ) {
-                    this.advance()
-                    result = new nodes.MutateArrayNode(result, this.expr())
-                }
+                // if(this.currentToken.type == TokenType.EQ) {
+                //     this.advance()
+                //     result = new nodes.MutateArrayNode(result, this.expr())
+                // }
 
                 break
 
             case TokenType.DOT:
                 this.advance()
-                const prop = this.handleIdent(node)
+                const prop = this.handleIdent(new nodes.ReferenceNode(this.currentToken.value, this.currentToken.line, this.currentToken.char))
 
                 result = new nodes.PropertyNode(node, prop, startLine, startChar)
 
@@ -625,9 +627,9 @@ class Parser {
             if(!(endStatement instanceof nodes.MutateNode || endStatement instanceof nodes.FuncCallNode)) {
                 raiseError(`"${this.currentToken.value}" is not a valid statement`, this.text, this.currentToken.line, this.currentToken.char - this.currentToken.value.length, this.currentToken.char)
             }
-        } else {
-            this.advance()
-        }
+        } 
+
+        this.advance()
 
         const result = new nodes.LoopNode(condition, this.statementSequence(), startStatement, endStatement)
 
