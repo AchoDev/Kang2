@@ -85,12 +85,15 @@ class VarAssignNode {
     nodeB
     line
     char
+
+    alreadyInterpreted
     
-    constructor(crA, crB, line, char) {
+    constructor(crA, crB, line, char, alreadyInterpreted=false) {
         this.nodeA = crA
         this.nodeB = crB
         this.line = line
         this.char = char
+        this.alreadyInterpreted = alreadyInterpreted
     }
 
     repr = () => {

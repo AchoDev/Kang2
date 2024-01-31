@@ -267,6 +267,8 @@ class Interpreter {
             
             if(node.nodeB instanceof ActiveReferenceNode) {
                 value = this.openReferenceNode(node.nodeB, localTable, true)
+            } else if(node.alreadyInterpreted) {
+                value = node.nodeB
             } else {
                 value = this.open(node.nodeB, localTable)
             }
@@ -373,7 +375,7 @@ class Interpreter {
         }
 
         for(let i = 0; i < node.args.length; i++) {
-            func.body.nodes.unshift(new VarAssignNode(func.arguments[i], this.open(node.args[i], localTable)))
+            func.body.nodes.unshift(new VarAssignNode(func.arguments[i], this.open(node.args[i], localTable), node.line, node.char, true))
             // problem is var assign node assigns variables per tree not value
             // but vars need to get value BEFORE calling function elsewhere
             // prob add val to varassign to allow plain values

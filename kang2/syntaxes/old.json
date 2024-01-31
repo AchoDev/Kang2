@@ -1,14 +1,9 @@
+
 {
 	"scopeName": "source.kang2",
 	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
 	"name": "Kang2",
 	"patterns": [
-		{
-			"include": "#numbers"
-		},
-		{
-			"include": "#comments"
-		},
 		{
 			"include": "#strings"
 		},
@@ -32,27 +27,6 @@
 		}
 	],
 	"repository": {
-		"numbers": {
-			"patterns": [
-				{
-					"name": "constant.numeric",
-					"match": "\\b\\d+\\b"
-				}
-			]
-		},
-		"comments": {
-			"patterns": [
-				{
-					"name": "comment.line.double-slash",
-					"match": "//.*$"
-				},
-				{
-					"name": "comment.block",
-					"begin": "/\\*",
-					"end": "\\*/"
-				}
-			]
-		},
 		"strings": {
 			"patterns": [
 				{
@@ -69,6 +43,7 @@
 			]
 		},
 		"variables": {
+			
 			"patterns": [
 				{
 					"match": "\\bvar\\b",
@@ -77,8 +52,11 @@
 				{
 					"match": "\\b\\w+\\b(?=\\s*=)",
 					"name": "variable.name"
+				},
+				{
+					"match": "\\b\\w+\\b(?=\\s*\\+)",
+					"name": "variable.name"
 				}
-				
 			]
 		},
 		"structs": {
@@ -96,7 +74,7 @@
 					"name": "variable.other.member"
 				},
 				{
-					"match": "\\b(static)\\b",
+					"match": "\\bfunc\\b",
 					"name": "keyword.declaration"
 				},
 				{
@@ -116,11 +94,11 @@
 					"name": "entity.name.function"
 				},
 				{
-					"match": "\\bprompt\\b",
+					"match": "\\bprint\\b",
 					"name": "support.function"
 				},
 				{
-					"match": "\\log\\b",
+					"match": "\\binput\\b",
 					"name": "support.function"
 				}
 			]
@@ -134,37 +112,17 @@
 				{
 					"match": "\\b\\d+\\b(?=\\s*\\{)",
 					"name": "constant.numeric"
-				},
-				{
-					"match": "\\b\\+\\+\\b",
-					"name": "keyword.operator"
-				},
-				{
-					"match": "\\-\\-",
-					"name": "keyword.operator"
-				},
-				{
-					"match": "\\+\\=",
-					"name": "keyword.operator"
-				},
-				{
-					"match": "\\-\\=",
-					"name": "keyword.operator"
-				},
-				{
-					"match": "\\*\\=",
-					"name": "keyword.operator"
-				},
-				{
-					"match": "\\/\\=",
-					"name": "keyword.operator"
 				}
 			]
 		},
 		"conditionals": {
 			"patterns": [
 				{
-					"match": "\\b(if|else|elseif)\\b",
+					"match": "\\bif\\b",
+					"name": "keyword.control"
+				},
+				{
+					"match": "\\belse\\b",
 					"name": "keyword.control"
 				}
 			]
@@ -174,14 +132,6 @@
 				{
 					"name": "keyword.control",
 					"match": "\\b(return|true|false|null)\\b"
-				},
-				{
-					"name": "keyword.operator",
-					"match": "(\\+\\+|--|\\+=|-=|\\*=|/=)"
-				},
-				{
-					"name": "keyword.operator",
-					"match": "(&|@)"
 				}
 			]
 		}

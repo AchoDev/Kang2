@@ -14,7 +14,7 @@ See `documentation.md` for more info
 
 ## Changelog
 
-### 1.1
+### Update 1.1
 
 - **Structs**
     ``` swift
@@ -54,7 +54,7 @@ See `documentation.md` for more info
 
 - **Fixes various bugs**
 
-### 1.2
+### Update 1.2
 
 - **comments**
     ```swift
@@ -124,3 +124,42 @@ See `documentation.md` for more info
     - `node app.js <your kang2 script>.kg`
 - **Visual Studio Code extension**
     - Get decent syntax highlighting and icons by downloading the Kang2 VSC extension from the extension store!
+
+### Update 1.3
+
+- **Primitive types**
+    - Every variable has a type with standard functions (std folder)
+    ``` swift
+    var string = "hey"
+    log string.split()
+
+    func log_char(char) {
+        log char
+    }
+
+    string.split().foreach(log_char)
+    ```
+- **Active references**
+    - Reference values with `&`, which will bind the reference to the original variable, making changing one, reflect the changes on both
+    - Unreferencing values with `@`, to get the actual value and change it unrelated to the original variable
+    ``` swift    
+    var value = 10
+    var ref = &value
+
+    value = 20
+    log @ref
+
+    ref = 30
+    log value
+
+    log @ref + 10
+    ```
+    ```
+    [console]
+    20
+    30
+    40
+    ```
+- **Fixed a bunch of problems with the syntax highlighting**
+- **Fixed lots of bugs, making the language more stable**
+- **Made a small std library for most types**

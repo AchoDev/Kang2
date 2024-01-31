@@ -39,6 +39,8 @@ function loadModule(path, native = false) {
 
     modules[path].importedModules.push(modules["string"]);
     modules[path].importedModules.push(modules["array"]);
+    modules[path].importedModules.push(modules["number"]);
+    modules[path].importedModules.push(modules["boolean"]);
 
 
     let rawdata
@@ -79,6 +81,8 @@ function loadModule(path, native = false) {
 
 loadModule('string', true)
 loadModule('array', true)
+loadModule('number', true)
+loadModule('boolean', true)
 loadModule(basemodule)
 
 

@@ -20,7 +20,7 @@ func interpret_symbol(symbol) {
         current_cell -= 1
     }
     elseif symbol == '.' {
-        io.print(memory[current_cell])
+        log alphabet[memory[current_cell] - 1]
     }
 }
 

@@ -1,32 +1,108 @@
 
+import io
+// import io module for input and output
 
 var name = "Joe"
 var height = 74
 
+// types
+
+var string = "Hello"
+var bool = true
+var array = [1, 2, 3, 4, 5]
+var number = 10
+
 var full_name = name + "Smith"
 
-print(full_name)
+log full_name
 
 struct Person {
-	var name: String
-	var height: Int
+	var name
+	var height
+
+	static func getStandardPerson() {
+		return Person("Peter", 74)
+	}
 
 	func sayHello() {
-		print("Hello, my name is " + name)
+		log "Hello, my name is " + name
 	}
 }
 
 var person = Person("Joe", 74)
 person.sayHello()
 
-var input_name = input("what's your name? ")
+var person2 = Person.getStandardPerson()
 
+var input_name 
+
+// get input with prompt key and save value with arrow key in a var
+prompt "what's your name? " -> input_name
+
+// loop 5 times
 loop 5 {
-	print(input_name)
+	log input_name
 }
 
-if(input_name == "Joe") {
-	print("Hello Joe")
-} else {
-	print("Hello " + input_name)
+// loop until condition is met
+loop input_name != "Joe" {
+	log input_name
 }
+
+// classic loop
+loop var i = 0, i < 10, i++ {
+	log i
+}
+
+
+if input_name == "Joe" {
+	log "Hello Joe"
+} elseif input_name == "Bob" {
+	log "Hello Bob"
+} else {
+	log "Hello stranger"
+}
+
+
+var array2 = input_name.split()
+
+func test_function(name) {
+	log "Hello " + name
+}
+
+// create reference with &
+var val1 = "Hello"
+var ref = &val1
+
+val2 = "Hi"
+// unreference with @
+log @ref
+
+// will log "Hi"
+
+func change_val(val) {
+	val = "THIS NOW CHANGED"
+}
+
+change_val(val1)
+
+log val1
+
+// val1 will stay "Hi"
+
+change_val(&val1)
+// or
+change_val(ref)
+
+log val1
+
+// val1 will now be "THIS NOW CHANGED"
+
+var number = 10
+
+number++
+number--
+number += 1
+number -= 1
+number *= 2
+number /= 2
