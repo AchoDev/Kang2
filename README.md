@@ -160,6 +160,13 @@ See `documentation.md` for more info
     30
     40
     ```
+- **Advanced loop**
+    - More advanced loops
+    ``` swift
+    loop var i = 0, i < 10, i++ {
+        log i
+    }
+    ```
 - **Fixed a bunch of problems with the syntax highlighting**
 - **Fixed lots of bugs, making the language more stable**
 - **Made a small std library for most types**
