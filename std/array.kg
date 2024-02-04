@@ -36,3 +36,4 @@ func foreach(self, fn) {
         fn(self[i])
     }
 }
+

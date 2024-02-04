@@ -1,4 +1,4 @@
 
 func toggle(self) {
-    return !self
+    return false
 }
