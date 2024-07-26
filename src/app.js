@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const raiseError = require('./syntaxtree/error_handler.js');
 const Interpreter = require('./syntaxtree/interpreter.js')
 const Parser = require('./syntaxtree/parser.js')

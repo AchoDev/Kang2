@@ -1,7 +1,7 @@
 import io
 
 // var code = io.input("your brainfck code: ")
-var code = '++++++++++.'
+var code = "++++++++++."
 var memory = [0, 0, 0, 0, 0, 0, 0, 0, 0]
 var current_cell = 0
 var alphabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']

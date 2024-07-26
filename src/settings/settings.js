@@ -3,13 +3,13 @@ const { SymbolTable } = require('../variable');
 let path
 let rawdata 
 
-try {
-    path = 'settings/settings.json'
-    rawdata = fs.readFileSync(path);
-} catch {
-    path = 'src/settings/settings.json'
-    rawdata = fs.readFileSync(path);
-}
+// try {
+//     path = 'settings/settings.json'
+//     rawdata = fs.readFileSync(path);
+// } catch {
+//     path = 'src/settings/settings.json'
+//     rawdata = fs.readFileSync(path);
+// }
 let settings = JSON.parse(rawdata);
 
 function showNode() {

@@ -1,4 +1,8 @@
 
+func test() {
+    log "Hello, World!"
+}
+
 loop 5 {
-    log "test"
+    test()
 }
