@@ -2,7 +2,6 @@
 const TokenType = require("../token.js").TokenType
 const nodes = require("../nodes.js")
 const { Token } = require("../token.js")
-const settings = require("../settings/settings.js")
 const { SymbolTable, Variable } = require("../variable.js")
 const { isIn, COMPARISON_TYPE } = require("./lexer.js")
 const raiseError = require("./error_handler.js")
@@ -79,11 +78,7 @@ class Parser {
         // if(this.tokens[this.index] != null) {
         //     this.raiseError()
         //     console.log(`Internal Token error [${JSON.stringify(this.currentToken, null, 4)}]`)
-        // }
-
-        if(settings.showNode()) {
-            console.log(result)
-        }
+        // 
 
         return result
     }

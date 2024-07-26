@@ -7,8 +7,6 @@ const QUOTES = `"'`
 const BRACKETS = "(){}[]<>"
 
 const { TokenType, Token } = require('../token.js')
-const settings = require('../settings/settings.js')
-const { isJSDocThisTag } = require('typescript')
 
 
 const isIn = (char, rawarr) => { 
@@ -57,20 +55,6 @@ class Lexer {
         this.index--
         this.currentChar = this.text[this.index]
     }
-
-    // createTokens() {
-
-    //     let statements = []
-
-    //     while (this.currentChar) {
-    //         const line = this.createLine()
-    //         if(line) statements.push(line)
-    //     }
-    //     // if(settings.showToken()) console.log(tokens)
-    //     // return tokens
-
-    //     console.log(statements)
-    // }
 
     getCurrentToken() {
         let token
@@ -410,10 +394,7 @@ class Lexer {
     handleMinus() {
         this.advance()
         let result
-        if(this.currentChar == 's') {
-            settings.changeSetting(this.input)
-            return 1
-        } else if(this.currentChar == '>') {
+        if(this.currentChar == '>') {
             result = new Token(TokenType.ARROW, "->")
             this.advance()
         } else if(this.currentChar == '=') {
