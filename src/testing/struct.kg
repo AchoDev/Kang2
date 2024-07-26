@@ -1,28 +1,53 @@
 
-struct Player {
-  var name = "achomatico"
 
-  var interesting = true
 
-  func sayname() {
-    log name
-  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+struct House {
+  var name = "house"
+  var color = "red"
+  var size = 100
 
   func getname() {
     return name
   }
+
+  func getcolor() {
+    return color
+  }
+
+  func getsize() {
+    return size
+  }
 }
 
-var player = Player()
-player.sayname()
-player.sayname()
-player.sayname()
+var house = House()
 
-log ""
+log house.name
+log house.getcolor()
 
-var name = ""
-
-
-log "oh hello " + name + " my name is " + player.getname()
-
-
+log house.hehehehhaw

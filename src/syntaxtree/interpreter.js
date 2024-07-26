@@ -232,7 +232,7 @@ class Interpreter {
 
         let value = this.searchSymbol(node.varName, localTable, node.line, node.char)
 
-        if(value == null && node.varName != "null") {
+        if(value == null) {
             // console.log(node.varName.length)
             raiseError(`"${node.varName}" is not defined`, this.lines, node.line, node.char - node.varName.length - 1, node.char)
         }
