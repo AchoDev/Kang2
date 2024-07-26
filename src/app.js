@@ -62,15 +62,15 @@ function loadModule(path, native = false) {
     const tokens = lexer.createTokens()
     // console.log(tokens)
 
-    // console.log(tree)
     const parser = new Parser(tokens, rawdata)
     parser.findModules().forEach(element => {
         const success = loadModule(element.ident)
         if(!success) raiseError(`Module "${element.ident}" not found`, parser.text, element.line, 0, parser.text[element.line].length)
-        modules[path].importedModules.push(modules[element.ident])
+            modules[path].importedModules.push(modules[element.ident])
     });
-
+    
     const tree = parser.parse()
+    // console.log(tree)
     if(process.argv[3] == "-t" && !native) console.log(`Syntax Tree for module "${path}":\n\n`, tree, "\n")
 
 
@@ -81,10 +81,10 @@ function loadModule(path, native = false) {
     return path
 }
 
-loadModule('string', true)
-loadModule('array', true)
-loadModule('number', true)
-loadModule('boolean', true)
+// loadModule('string', true)
+// loadModule('array', true)
+// loadModule('number', true)
+// loadModule('boolean', true)
 loadModule(basemodule)
 
 

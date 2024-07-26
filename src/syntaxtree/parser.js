@@ -250,8 +250,8 @@ class Parser {
             this.advance()   
         } else if (this.currentToken != null && this.currentToken.type == TokenType.IDENT) {
             const str = this.currentToken.value
-            this.advance()
             result = this.handleIdent(new nodes.ReferenceNode(str, this.currentToken.line, this.currentToken.char))
+            this.advance()
         } else if(this.currentToken != null && this.currentToken.type == TokenType.TRUE) {
             result = new nodes.BooleanNode(true)
             this.advance()
