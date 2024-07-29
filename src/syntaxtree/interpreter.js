@@ -241,13 +241,14 @@ class Interpreter {
 
         if(node instanceof ActiveReferenceNode) {
             if(!allowActiveReference) {
-                raiseError(`Cannot use active reference in this context`, this.lines, node.line, node.char - node.varName.length - 1, node.char)
+                // raiseError(`Cannot use active reference in this context`, this.lines, node.line, node.char - node.varName.length - 1, node.char)
             }    
 
             return new ActiveReference(node.varName)
         }
 
         if(value instanceof ActiveReference) { 
+            
             return this.open(new ReferenceNode(value.value), localTable)
         }
 
@@ -451,9 +452,10 @@ class Interpreter {
         let value = isConverted ? node.value : this.open(node.value, localTable)
         let mutateTarget = node.ident.varName
 
-        const result = this.open(node.ident, localTable)
+        // const result = this.open(node.ident, localTable)
+        const result = this.searchSymbol(mutateTarget, localTable, node.line, node.char).result
         if(result instanceof ActiveReference) {
-            mutateTarget = result.result.value 
+            mutateTarget = result.value
         }
 
         if(node.ident instanceof ArrayReferenceNode) {
@@ -539,7 +541,7 @@ class Interpreter {
         if (result == null && table.parent == null) {
             this.importedModules.forEach(element => {
                 if(element == undefined) return
-                
+
                 if(element.name == _name) {
 
                     if(!element.loaded) {

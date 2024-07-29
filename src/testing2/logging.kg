@@ -1,7 +1,10 @@
 
-var name = "acho"
-var ref = &name
 
-ref = "test"
+func addOne(value) {
+    value++
+}
 
-log name
+var num = 10
+addOne(&num)
+
+log num
