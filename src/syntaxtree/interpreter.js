@@ -485,7 +485,11 @@ class Interpreter {
         // const input = "here have me some absolutely beautiful input mate"
 
         if(node.outputNode == null) return input
-        this.mutateVariable({"ident": node.outputNode.varName, "value": new StringNode(input)}, localTable)
+        this.mutateVariable(
+            new MutateNode(
+                new ReferenceNode(node.outputNode.varName, node.line, node.char), 
+                new StringNode(input)
+            ), localTable)
         return true
     }
 
