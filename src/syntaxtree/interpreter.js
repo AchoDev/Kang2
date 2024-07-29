@@ -538,7 +538,8 @@ class Interpreter {
 
         if (result == null && table.parent == null) {
             this.importedModules.forEach(element => {
-
+                if(element == undefined) return
+                
                 if(element.name == _name) {
 
                     if(!element.loaded) {
