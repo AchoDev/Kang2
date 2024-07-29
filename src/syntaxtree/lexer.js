@@ -274,10 +274,12 @@ class Lexer {
             if(!isIn(this.currentChar, BRACKETS)) {
                 // if(isIn(this.currentChar, QUOTES)) console.log("hey ich habe keinen vater")
                 if(isIn(this.currentChar, QUOTES)) {
+                    const startQuote = this.currentChar;
                     string += this.currentChar
                     this.advance()
                     while(this.currentChar != null) {
-                        if(!isIn(this.currentChar, QUOTES)) {
+                        // if(!isIn(this.currentChar, QUOTES)) {
+                        if(!this.currentChar === startQuote) {
                             // console.log(isIn(this.currentChar, QUOTES))
                             string += this.currentChar
                             this.advance()

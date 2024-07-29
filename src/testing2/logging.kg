@@ -1,10 +1,23 @@
 
+struct SizedBox {
+    var width = 100
+    var height = 100
+    var child
 
-func addOne(value) {
-    value++
+    func render() {
+        // return "<div style='width: 100px; height: 100px;'>" + child.render() + "</div>"
+        return "test"
+    }
 }
 
-var num = 10
-addOne(&num)
+func App() {
+    var box = SizedBox()
+    box.width = 200
+    box.height = 200
 
-log num
+    return box
+}
+
+func Render() {
+    return App().render()
+}
