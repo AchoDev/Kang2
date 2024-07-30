@@ -1,0 +1,9 @@
+var result
+
+eval "
+    return [1, 2, 3].map(function (x) {
+        return x * x;
+    });
+" -> result
+
+log result

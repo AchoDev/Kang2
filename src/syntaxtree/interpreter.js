@@ -83,6 +83,9 @@ class Interpreter {
                 case 'LogNode':
                     result = this.printValue(node, localTable)
                     break
+                case 'EvalNode':
+                    result = this.evaluate(node, localTable)
+                    break
                 case 'InputNode':
                     result = this.getInput(node, localTable)
                     break
@@ -480,6 +483,18 @@ class Interpreter {
             return
         }
         console.log(result)
+    }
+
+    evaluate(node, localTable) {
+        const res = new Function(this.open(node.node, localTable))()
+    
+        if(node.outputNode == null) return res
+        this.mutateVariable(
+            new MutateNode(
+                new ReferenceNode(node.outputNode.varName, node.line, node.char), 
+                new StringNode(res)
+            ), localTable)
+        return res
     }
 
     getInput(node, localTable) {

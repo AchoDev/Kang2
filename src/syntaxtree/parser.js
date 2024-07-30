@@ -108,7 +108,15 @@ class Parser {
             } else if(this.currentToken.type == TokenType.LOG) {
                 this.advance()
                 result = new nodes.LogNode(this.expr())
+            } else if(this.currentToken.type == TokenType.EVAL) {
+                this.advance()
+                result = new nodes.EvalNode(this.expr(), null)
 
+
+                if(this.currentToken != null && this.currentToken.type == TokenType.ARROW) {
+                    this.advance()
+                    result = new nodes.EvalNode(result.node, this.factor())
+                }
             } else if(this.currentToken.type == TokenType.RETURN) {
                 this.advance()
                 result = new nodes.ReturnNode(this.expr())
@@ -358,45 +366,6 @@ class Parser {
                 }
             }
 
-            // for(let i; i < args.length; i++) {
-            //     varList.push(new Variable("any", args[i], null, ident))
-            // }
-
-            // SymbolTable.newLocalTable(ident, varList)
-
-            // current -> right parenthesis
-
-            // const switchIdent = () => {  // manually changes all variables that are returned from ident to ref (very bad)
-            //     let newIndex = this.index
-            //     let newCurrent = this.tokens[newIndex]
-            //     let i = 0
-            //     // console.log("NEW CURRENT -> " + newCurrent)
-
-
-            //     const newAdvance = () => {
-            //         newIndex++
-            //         newCurrent = this.tokens[newIndex]
-            //         // console.log(newIndex)
-            //         // console.log(`NEW CURRENT: ${JSON.stringify(newCurrent)} --- CURRENT ${JSON.stringify(this.tokens[newIndex])}`)
-            //     }
-                
-            //     while(newCurrent != null) {
-            //         // console.log(args.join("") + "SElAM THIS IS ARG JOIN !!" + newCurrent.value)
-            //         // console.log("IS IN TRUE OR FALSe => " + isIn(newCurrent.value, args.join("")))
-            //         if(newCurrent != null && isIn(newCurrent.value, args.join(""))) {
-            //             this.tokens[newIndex].type = TokenType.REF
-            //         } else if(newCurrent == null) {
-            //             break
-            //         }
-
-            //         newAdvance()
-
-            //         // console.log("INSIDE WHILE => " + JSON.stringify(newCurrent))
-            //         i++
-            //         if(i > 20) break
-            //     }
-            // }
-
             this.advance()
 
             if(this.currentToken != null) {
@@ -442,7 +411,9 @@ class Parser {
         const startLine = this.currentToken.line
         let result
         
+        this.advance()
         if(this.currentToken == null) return node
+
 
         switch(this.currentToken.type) {
             case TokenType.LPAREN:

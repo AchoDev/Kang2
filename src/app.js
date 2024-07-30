@@ -60,7 +60,7 @@ function loadModule(path, native = false) {
     const lexer = new cLexer(rawdata)
 
     const tokens = lexer.createTokens()
-    // console.log(tokens)
+    console.log(tokens)
 
     const parser = new Parser(tokens, rawdata)
     parser.findModules().forEach(element => {

@@ -53,6 +53,7 @@ const TokenType = Object.freeze({
     FROM: 50,
     ACTIVEREFERENCE: 51,
     UNREFERENCED: 52,
+    EVAL: 53,
 })
 
 

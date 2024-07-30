@@ -275,19 +275,18 @@ class Lexer {
                 // if(isIn(this.currentChar, QUOTES)) console.log("hey ich habe keinen vater")
                 if(isIn(this.currentChar, QUOTES)) {
                     const startQuote = this.currentChar;
-                    string += this.currentChar
                     this.advance()
                     while(this.currentChar != null) {
                         // if(!isIn(this.currentChar, QUOTES)) {
-                        if(!this.currentChar === startQuote) {
+                        if(this.currentChar !== startQuote) {
                             // console.log(isIn(this.currentChar, QUOTES))
                             string += this.currentChar
                             this.advance()
                             // i++
                             // if(i > 25) break
                         } else {
-                            string += this.currentChar
                             this.advance()
+                            return new Token(TokenType.STRING, string)
                             break
                         }
                     }
@@ -322,11 +321,12 @@ class Lexer {
         // }
 
         
-         else if(string.split('')[0] == "'" || string.split('')[0] == '"') {
-            if(string.slice(-1) == "'" || string.slice(-1) == '"') {
-                result = new Token(TokenType.STRING, string.slice(1, -1))
-            }
-        } else {
+        //  else if(string.split('')[0] == "'" || string.split('')[0] == '"') {
+        //     if(string.slice(-1) == "'" || string.slice(-1) == '"') {
+        //         result = new Token(TokenType.STRING, string.slice(1, -1))
+        //     }
+        // } 
+        else {
             switch(string) {
                 case 'func':
                     result = new Token(TokenType.FUNCKEY, string)
@@ -338,6 +338,10 @@ class Lexer {
                 
                 case 'log':
                     result = new Token(TokenType.LOG, string)
+                    break
+
+                case 'eval':
+                    result = new Token(TokenType.EVAL, string)
                     break
             
                 case 'loop':

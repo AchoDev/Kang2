@@ -272,6 +272,15 @@ class LogNode {
     }
 }
 
+class EvalNode {
+    node
+    outputNode
+    constructor(node, outputNode) {
+        this.node = node
+        this.outputNode = outputNode
+    }
+}
+
 class InputNode {
     outputNode
     questionNode
@@ -417,6 +426,7 @@ module.exports = {
     StatementSequence,
     FuncCallNode,
     LogNode,
+    EvalNode,
     InputNode,
     MutateNode,
     ModuloNode,

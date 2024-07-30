@@ -12,7 +12,8 @@
                 "<node_internals>/**"
             ],
             "program": "${workspaceFolder}/src/app.js",
-            "args": ["src/testing2/logging.kg"]
+            // "args": ["src/testing2/logging.kg"]
+            "args": ["src/testfrm/test.kg", "-t"]
         }
     ]
 }
